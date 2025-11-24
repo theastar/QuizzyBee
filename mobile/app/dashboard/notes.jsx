@@ -1,0 +1,170 @@
+import React, { useContext, useState } from "react";
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import DeleteModal from "../../components/DeleteModal";
+import { NotesContext } from "../../context/NotesContext";
+import BackButton from "../../components/BackButton";
+
+function Notes() {
+  const router = useRouter();
+  const { notes, deleteNote } = useContext(NotesContext);
+  const [query, setQuery] = useState("");
+  const [deleteId, setDeleteId] = useState(null);
+
+  const filteredNotes = notes.filter(
+    (n) =>
+      n.title.toLowerCase().includes(query.toLowerCase()) ||
+      n.subject.toLowerCase().includes(query.toLowerCase())
+  );
+
+  return (
+    <View style={styles.page}>
+      {/* Back button row */}
+      <View style={styles.backBtnArea}>
+        <BackButton />
+      </View>
+
+      {/* New Note button */}
+      <View style={styles.headerRow}>
+        <TouchableOpacity
+          style={styles.newBtn}
+          onPress={() => router.push("/notes-new")}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="add-circle-outline" size={22} color="#fff" style={{ marginRight: 5 }} />
+          <Text style={styles.newBtnText}>New Note</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Search input */}
+      <View style={styles.searchBox}>
+        <Ionicons name="search" size={19} color="#A25C30" style={{ marginRight: 7, marginTop: 1 }} />
+        <TextInput
+          placeholder="Search notes"
+          placeholderTextColor="#A25C30"
+          value={query}
+          onChangeText={setQuery}
+          style={styles.searchInput}
+        />
+      </View>
+
+      {/* List of notes */}
+      <ScrollView contentContainerStyle={{ paddingBottom: 35 }}>
+        {filteredNotes.length === 0 ? (
+          <Text
+            style={{
+              color: "#99742c",
+              fontFamily: "Poppins_400Regular",
+              fontSize: 14,
+              textAlign: "center",
+              marginTop: 200,
+            }}
+          >
+            No notes yet.
+          </Text>
+        ) : (
+          filteredNotes.map((note) => (
+            <TouchableOpacity
+              key={note.id}
+              style={styles.card}
+              activeOpacity={0.92}
+              onPress={() =>
+                router.push({
+                  pathname: "/notes-details",
+                  params: note,
+                })
+              }
+            >
+              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cardTitle}>{note.title}</Text>
+                  <Text style={styles.cardContent} numberOfLines={1}>
+                    {note.content}
+                  </Text>
+                  <View style={styles.chip}>
+                    <Text style={styles.chipText}>{note.subject}</Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    setDeleteId(note.id);
+                  }}
+                >
+                  <Ionicons name="trash" size={18} color="#E53935" style={{ marginLeft: 6, marginTop: 2 }} />
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
+      </ScrollView>
+
+      <DeleteModal
+        visible={!!deleteId}
+        onConfirm={() => {
+          deleteNote(deleteId);
+          setDeleteId(null);
+        }}
+        onCancel={() => setDeleteId(null)}
+      />
+    </View>
+  );
+}
+
+export default Notes;
+
+const styles = StyleSheet.create({
+  page: { flex: 1, backgroundColor: "#FFFBF0", padding: 16 },
+  backBtnArea: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 10,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginHorizontal: 8,
+    marginBottom: 25,
+    marginTop: 80,
+  },
+  newBtn: {
+    flexDirection: "row",
+    backgroundColor: "#FE9A00",
+    borderRadius: 8,
+    alignItems: "center",
+    paddingVertical: 7,
+    paddingHorizontal: 15,
+    elevation: 2,
+    shadowColor: "#FABF41",
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  newBtnText: {
+    color: "#fff",
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 16,
+    marginLeft: 6,
+  },
+  searchBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFBF0",
+    borderRadius: 10,
+    borderWidth: 0,
+    borderColor: "#FDEBA1",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 18,
+    shadowColor: "#000",
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+  },
+  searchInput: { fontFamily: "Poppins_400Regular", fontSize: 16, color: "#A25C30", flex: 1, padding: 0 },
+  card: { backgroundColor: "#FFF", borderRadius: 13, borderWidth: 2, borderColor: "#FDEBA1", padding: 18, marginBottom: 13 },
+  cardTitle: { fontFamily: "Poppins_600SemiBold", fontSize: 15, color: "#1A1D16", marginBottom: -2 },
+  cardContent: { fontFamily: "Poppins_400Regular", color: "#A25C30", fontSize: 14, marginBottom: 10 },
+  chip: { alignSelf: "flex-start", backgroundColor: "#FDEBA1", borderRadius: 4, paddingVertical: 2, paddingHorizontal: 7, marginTop: 3 },
+  chipText: { color: "#A25C30", fontFamily: "Poppins_500Medium", fontSize: 12 },
+});

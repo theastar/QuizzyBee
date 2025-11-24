@@ -1,0 +1,42 @@
+import { Stack } from "expo-router";
+import { NotesProvider } from "../context/NotesContext";
+import { FlashcardsProvider } from "../context/FlashcardsContext";
+import { CalendarProvider } from "../context/CalendarContext"; 
+import { useFonts, Poppins_200ExtraLight, Poppins_300Light, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from "@expo-google-fonts/poppins";
+import { View, ActivityIndicator } from "react-native";
+
+function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    Poppins_200ExtraLight,
+    Poppins_300Light,
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#4F4E28" />
+      </View>
+    );
+  }
+
+  return (
+    <NotesProvider>
+      <FlashcardsProvider>
+        <CalendarProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: "fade",
+            }}
+          />
+        </CalendarProvider>
+      </FlashcardsProvider>
+    </NotesProvider>
+  );
+}
+
+export default RootLayout;
