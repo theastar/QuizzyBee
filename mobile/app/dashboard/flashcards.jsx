@@ -1,40 +1,32 @@
 import React, { useContext, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { FlashcardsContext } from "../../context/FlashcardsContext";
 import BackButton from "../../components/BackButton";
-import CreateDeckModal from "../../components/CreateDeckModal";
-import AddFlashcardsModal from "../../components/AddFlashcardsModal";
 import DeleteModal from "../../components/DeleteModal";
 
 function Flashcards() {
   const router = useRouter();
-  // Use flashcards data and actions from context
   const { decks, addDeck, deleteDeck } = useContext(FlashcardsContext);
-  // Modal state
-  const [deckModalVisible, setDeckModalVisible] = useState(false);
-  const [activeDeckId, setActiveDeckId] = useState(null);
+
   const [deleteId, setDeleteId] = useState(null);
 
   return (
-    <View style={styles.page}>
-      {/* Back button container */}
+    <SafeAreaView style={styles.page}>
       <View style={styles.backButtonRow}>
         <BackButton />
       </View>
-      {/* Header with create deck button */}
       <View style={styles.headerRow}>
         <TouchableOpacity
           style={styles.createDeckBtn}
-          onPress={() => setDeckModalVisible(true)}
+          onPress={() => router.push("/CreateDeckPage")}
           activeOpacity={0.85}
         >
           <Ionicons name="add-circle-outline" size={21} color="#fff" />
           <Text style={styles.createDeckText}>Create Deck</Text>
         </TouchableOpacity>
       </View>
-      {/* Decks list */}
       <ScrollView contentContainerStyle={{ paddingBottom: 28 }}>
         {decks.length === 0 ? (
           <Text
@@ -43,18 +35,17 @@ function Flashcards() {
               fontFamily: "Poppins_400Regular",
               fontSize: 14,
               textAlign: "center",
-              marginTop: 200,}}>
+              marginTop: 200,
+            }}
+          >
             No flashcards yet.
           </Text>
         ) : (
           decks.map((deck) => (
             <View key={deck.id} style={styles.deckCard}>
-              {/* Delete deck button */}
               <TouchableOpacity onPress={() => setDeleteId(deck.id)} style={styles.trashIcon} hitSlop={8}>
                 <Ionicons name="trash" size={20} color="#E53935" />
               </TouchableOpacity>
-
-              {/* Deck info */}
               <View style={styles.deckTopContent}>
                 <View style={styles.deckIconWrap}>
                   <MaterialCommunityIcons name="cards" size={27} color="#fff" />
@@ -64,21 +55,22 @@ function Flashcards() {
                   <Text style={styles.cardsCount}>{deck.cards.length} cards</Text>
                 </View>
               </View>
-
-              {/* Deck actions */}
               <View style={styles.deckCardActions}>
                 <TouchableOpacity
                   style={styles.studyBtn}
                   activeOpacity={0.92}
                   onPress={() =>
                     deck.cards.length === 0
-                      ? setActiveDeckId(deck.id)
+                      ? router.push({ pathname: "/AddFlashcardsPage", params: { deckId: deck.id }})
                       : router.push({ pathname: "/flashcard-study", params: { id: deck.id } })
                   }
                 >
                   <Text style={styles.studyBtnText}>Study</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.addCardBtn} onPress={() => setActiveDeckId(deck.id)}>
+                <TouchableOpacity
+                  style={styles.addCardBtn}
+                  onPress={() => router.push({ pathname: "/AddFlashcardsPage", params: { deckId: deck.id }})}
+                >
                   <Ionicons name="add" size={25} color="#111" />
                 </TouchableOpacity>
               </View>
@@ -86,21 +78,6 @@ function Flashcards() {
           ))
         )}
       </ScrollView>
-
-      {/* Modals for deck creation, card addition, and deletion */}
-      <CreateDeckModal
-        visible={deckModalVisible}
-        onClose={() => setDeckModalVisible(false)}
-        onCreate={(title) => {
-          addDeck(title);
-          setDeckModalVisible(false);
-        }}
-      />
-      <AddFlashcardsModal
-        visible={!!activeDeckId}
-        onClose={() => setActiveDeckId(null)}
-        deckId={activeDeckId}
-      />
       <DeleteModal
         visible={!!deleteId}
         onConfirm={() => {
@@ -109,14 +86,18 @@ function Flashcards() {
         }}
         onCancel={() => setDeleteId(null)}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 export default Flashcards;
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: "#FFFBEF", paddingTop: 60 },
+  page: {
+    flex: 1,
+    backgroundColor: "#FFFBEF",
+    paddingTop: 60,
+  },
   backButtonRow: {
     paddingLeft: 20,
     paddingTop: 1,
@@ -200,10 +181,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   trashIcon: {
-  position: "absolute",
-  top: 10,
-  right: 10,
-},
+    position: "absolute",
+    top: 10,
+    right: 10,
+  },
   studyBtn: {
     backgroundColor: "#FF8927",
     borderRadius: 10,

@@ -4,22 +4,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { FlashcardsContext } from "../context/FlashcardsContext";
 import DeleteModal from "../components/DeleteModal";
-import EditFlashcardModal from "../components/EditFlashcardModal";
 import BackButton from "../components/BackButton";
 
 function FlashcardStudy() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const { decks, deleteCardFromDeck, editCardInDeck } = useContext(FlashcardsContext);
+  const { decks, deleteCardFromDeck } = useContext(FlashcardsContext);
 
   const deck = decks.find((d) => d.id === id);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
-  const [editModal, setEditModal] = useState(false);
 
   if (!deck) return null;
-
   const card = deck.cards[index];
 
   return (
@@ -97,10 +94,28 @@ function FlashcardStudy() {
           </View>
 
           <View style={styles.actionRow}>
-            <TouchableOpacity style={styles.editBtn} onPress={() => setEditModal(true)}>
+            <TouchableOpacity
+              style={styles.editBtn}
+              onPress={() =>
+                router.push({
+                  pathname: "/EditFlashcardPage",
+                  params: {
+                    deckId: deck.id,
+                    cardIndex: index,
+                    q: card.question,
+                    a: card.answer,
+                  },
+                })
+              }
+              disabled={!card}
+            >
               <Text style={styles.editBtnText}>Edit</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.deleteBtn} onPress={() => setShowDelete(true)}>
+            <TouchableOpacity
+              style={styles.deleteBtn}
+              onPress={() => setShowDelete(true)}
+              disabled={!card}
+            >
               <Text style={styles.deleteBtnText}>Delete</Text>
             </TouchableOpacity>
           </View>
@@ -117,16 +132,6 @@ function FlashcardStudy() {
         }}
         onCancel={() => setShowDelete(false)}
       />
-
-      <EditFlashcardModal
-        visible={editModal}
-        onClose={() => setEditModal(false)}
-        card={card}
-        onSave={(edited) => {
-          editCardInDeck(deck.id, index, edited);
-          setEditModal(false);
-        }}
-      />
     </View>
   );
 }
@@ -139,7 +144,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFBF0",
     position: "absolute",
     left: 20,
-    top: 40,
+    top: 26,
     right: 0,
     height: 50,
     flexDirection: "row",
@@ -283,3 +288,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
+

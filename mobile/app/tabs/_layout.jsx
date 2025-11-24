@@ -51,7 +51,7 @@ function TabsLayout() {
           title: "Quiz",
           tabBarIcon: ({ color, size }) => (
             <View style={{ transform: [{ rotate: '30deg' }] }}>
-              <MaterialCommunityIcons name="hexagon-multiple" size={26} color={color} />
+              <MaterialCommunityIcons name="hexagon-multiple-outline" size={26} color={color} />
             </View>
           ),
         }}
@@ -61,7 +61,7 @@ function TabsLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={24} color={color} />
+            <Ionicons name="person-outline" size={26} color={color} />
           ),
         }}
       />

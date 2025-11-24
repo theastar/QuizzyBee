@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import CreateQuizModal from '../../components/CreateQuizModal';
 import DeleteModal from '../../components/DeleteModal';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
@@ -80,7 +79,7 @@ const QuizzyBee = () => {
       <View style={styles.addRow}>
         <TouchableOpacity
           style={styles.createButton}
-          onPress={() => setCreateModalVisible(true)}
+          onPress={() => router.push('/CreateQuizPage')}
         >
           <Ionicons name="add-circle-outline" size={24} color="#fff" />
           <Text style={styles.createButtonText}>Create Quiz</Text>
@@ -128,11 +127,6 @@ const QuizzyBee = () => {
         ))}
       </ScrollView>
 
-      <CreateQuizModal
-        visible={createModalVisible}
-        onClose={() => setCreateModalVisible(false)}
-        onCreateQuiz={handleCreateQuiz}
-      />
 
       <DeleteModal
         visible={deleteModalVisible}
