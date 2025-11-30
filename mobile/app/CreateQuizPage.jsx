@@ -60,10 +60,11 @@ export default function CreateQuizPage() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.pageContainer}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Create New Quiz</Text>
-          <TouchableOpacity onPress={() => router.back()} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>✕</Text>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Text style={styles.backButtonText}>←</Text>
           </TouchableOpacity>
+          <Text style={styles.headerTitle}>Create New Quiz</Text>
+          <View style={styles.placeholder} />
         </View>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.section}>
@@ -171,15 +172,19 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     color: '#1A1D16',
   },
-  closeButton: {
+  backButton: {
     width: 30,
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  closeButtonText: {
+  backButtonText: {
     fontSize: 24,
     color: '#808080',
+  },
+  placeholder: {
+    width: 30,
+    height: 30,
   },
   scrollView: {
     paddingHorizontal: 20,
