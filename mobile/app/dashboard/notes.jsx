@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import DeleteModal from "../../components/DeleteModal";
@@ -19,13 +19,10 @@ function Notes() {
   );
 
   return (
-    <View style={styles.page}>
-      {/* Back button row */}
+    <SafeAreaView style={styles.safeArea}>
       <View style={styles.backBtnArea}>
         <BackButton />
       </View>
-
-      {/* New Note button */}
       <View style={styles.headerRow}>
         <TouchableOpacity
           style={styles.newBtn}
@@ -36,8 +33,6 @@ function Notes() {
           <Text style={styles.newBtnText}>New Note</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Search input */}
       <View style={styles.searchBox}>
         <Ionicons name="search" size={19} color="#A25C30" style={{ marginRight: 7, marginTop: 1 }} />
         <TextInput
@@ -48,8 +43,6 @@ function Notes() {
           style={styles.searchInput}
         />
       </View>
-
-      {/* List of notes */}
       <ScrollView contentContainerStyle={{ paddingBottom: 35 }}>
         {filteredNotes.length === 0 ? (
           <Text
@@ -99,7 +92,6 @@ function Notes() {
           ))
         )}
       </ScrollView>
-
       <DeleteModal
         visible={!!deleteId}
         onConfirm={() => {
@@ -108,26 +100,25 @@ function Notes() {
         }}
         onCancel={() => setDeleteId(null)}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 export default Notes;
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: "#FFFBF0", padding: 16 },
+  safeArea: { flex: 1, backgroundColor: "#FFFBF0" },
   backBtnArea: {
-    position: "absolute",
-    top: 40,
-    left: 20,
-    zIndex: 10,
+    paddingLeft: 20,
+    paddingTop: 1,
+    paddingBottom: 10,
+    marginTop: -20,
   },
   headerRow: {
     flexDirection: "row",
     justifyContent: "flex-end",
     marginHorizontal: 8,
     marginBottom: 25,
-    marginTop: 80,
   },
   newBtn: {
     flexDirection: "row",
@@ -157,12 +148,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     marginBottom: 18,
+    marginHorizontal: 16,
     shadowColor: "#000",
     shadowOpacity: 0.04,
     shadowRadius: 2,
   },
   searchInput: { fontFamily: "Poppins_400Regular", fontSize: 16, color: "#A25C30", flex: 1, padding: 0 },
-  card: { backgroundColor: "#FFF", borderRadius: 13, borderWidth: 2, borderColor: "#FDEBA1", padding: 18, marginBottom: 13 },
+  card: { backgroundColor: "#FFF", borderRadius: 13, borderWidth: 2, borderColor: "#FDEBA1", padding: 18, marginBottom: 13, marginHorizontal: 16 },
   cardTitle: { fontFamily: "Poppins_600SemiBold", fontSize: 15, color: "#1A1D16", marginBottom: -2 },
   cardContent: { fontFamily: "Poppins_400Regular", color: "#A25C30", fontSize: 14, marginBottom: 10 },
   chip: { alignSelf: "flex-start", backgroundColor: "#FDEBA1", borderRadius: 4, paddingVertical: 2, paddingHorizontal: 7, marginTop: 3 },

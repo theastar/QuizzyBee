@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialIcons, Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -38,84 +38,93 @@ function Home() {
   const router = useRouter();
 
   return (
-    <ScrollView
-      style={{ backgroundColor: "#FFFBF0" }}
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Greeting */}
-      <Text style={styles.header}>Welcome back, Student!</Text>
-      <Text style={styles.subheader}>
-        Ready to continue your learning journey?
-      </Text>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Greeting */}
+        <Text style={styles.header}>Welcome back, Student!</Text>
+        <Text style={styles.subheader}>
+          Ready to continue your learning journey?
+        </Text>
 
-      {/* First row of menu buttons */}
-      <View style={styles.menuRow}>
-        {menuData.slice(0, 2).map((item) => (
-          <TouchableOpacity
-            key={item.label}
-            style={{ flex: 1 }}
-            activeOpacity={0.9}
-            onPress={() => {
-              if (item.label === "Calendar") router.push("/dashboard/calendar");
-              else if (item.label === "Pomodoro") router.push("/dashboard/pomodoro");
-            }}
-          >
-            <LinearGradient
-              colors={item.colors}
-              start={{ x: 0, y: 1 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.menuButton}
+        {/* First row of menu buttons */}
+        <View style={styles.menuRow}>
+          {menuData.slice(0, 2).map((item) => (
+            <TouchableOpacity
+              key={item.label}
+              style={{ flex: 1 }}
+              activeOpacity={0.9}
+              onPress={() => {
+                if (item.label === "Calendar") router.push("/dashboard/calendar");
+                else if (item.label === "Pomodoro") router.push("/dashboard/pomodoro");
+              }}
             >
-              {item.icon}
-              <Text style={styles.menuLabel}>{item.label}</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <LinearGradient
+                colors={item.colors}
+                start={{ x: 0, y: 1 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.menuButton}
+              >
+                {item.icon}
+                <Text style={styles.menuLabel}>{item.label}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      {/* Second row of menu buttons */}
-      <View style={styles.menuRow}>
-        {menuData.slice(2).map((item) => (
-          <TouchableOpacity
-            key={item.label}
-            style={{ flex: 1 }}
-            activeOpacity={0.9}
-            onPress={() => {
-              if (item.label === "Flashcards") router.push("/dashboard/flashcards");
-              else if (item.label === "Notes") router.push("/dashboard/notes");
-            }}
-          >
-            <LinearGradient
-              colors={item.colors}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.menuButton}
+        {/* Second row of menu buttons */}
+        <View style={styles.menuRow}>
+          {menuData.slice(2).map((item) => (
+            <TouchableOpacity
+              key={item.label}
+              style={{ flex: 1 }}
+              activeOpacity={0.9}
+              onPress={() => {
+                if (item.label === "Flashcards") router.push("/dashboard/flashcards");
+                else if (item.label === "Notes") router.push("/dashboard/notes");
+              }}
             >
-              {item.icon}
-              <Text style={styles.menuLabel}>{item.label}</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <LinearGradient
+                colors={item.colors}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.menuButton}
+              >
+                {item.icon}
+                <Text style={styles.menuLabel}>{item.label}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      {/* Recent quiz activity section */}
-      <View style={styles.quizBox}>
-        <Text style={styles.quizTitle}>Recent Quiz Activity</Text>
-        {quizActivities.map((activity) => (
-          <View style={styles.quizItem} key={activity.title}>
-            <Text style={styles.quizItemTitle}>{activity.title}</Text>
-            <Text style={styles.quizItemDate}>{activity.date}</Text>
-          </View>
-        ))}
-      </View>
-    </ScrollView>
+        {/* Recent quiz activity section */}
+        <View style={styles.quizBox}>
+          <Text style={styles.quizTitle}>Recent Quiz Activity</Text>
+          {quizActivities.map((activity) => (
+            <View style={styles.quizItem} key={activity.title}>
+              <Text style={styles.quizItemTitle}>{activity.title}</Text>
+              <Text style={styles.quizItemDate}>{activity.date}</Text>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 export default Home;
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#FFFBF0",
+  },
+  scrollView: {
+    backgroundColor: "#FFFBF0",
+  },
   container: {
     alignItems: "center",
     padding: 20,

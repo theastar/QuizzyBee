@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
-
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { Ionicons, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
@@ -33,89 +32,97 @@ function SettingsScreen() {
     router.replace("/");
   };
 
-
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "#FFFBF0" }} contentContainerStyle={styles.container}>
-      {/* Admin Toggle Icon */}
-      <TouchableOpacity
-        style={styles.adminToggle}
-        onPress={() => router.push("/admin/dashboard")}
-      >
-        <MaterialCommunityIcons name="shield-account" size={24} color="#E17203" />
-      </TouchableOpacity>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView style={{ flex: 1, backgroundColor: "#FFFBF0" }} contentContainerStyle={styles.container}>
+        {/* Admin Toggle Icon */}
+        <TouchableOpacity
+          style={styles.adminToggle}
+          onPress={() => router.push("/admin/dashboard")}
+        >
+          <MaterialCommunityIcons name="shield-account" size={24} color="#E17203" />
+        </TouchableOpacity>
 
-      <View style={styles.profileBox}>
-        {/* Hexagon Avatar */}
-        <View style={styles.hexagonAvatar}>
-          <MaterialCommunityIcons name="hexagon" size={170} color="#FA9F40" style={styles.hexagonBg} />
-          <Text style={styles.avatarLetter}>
-            {profile.name ? profile.name[0].toUpperCase() : "S"}
-          </Text>
+        <View style={styles.profileBox}>
+          {/* Hexagon Avatar */}
+          <View style={styles.hexagonAvatar}>
+            <MaterialCommunityIcons name="hexagon" size={170} color="#FA9F40" style={styles.hexagonBg} />
+            <Text style={styles.avatarLetter}>
+              {profile.name ? profile.name[0].toUpperCase() : "S"}
+            </Text>
+          </View>
+          <Text style={styles.name}>{profile.name}</Text>
+          <Text style={styles.email}>{profile.email}</Text>
+          <Text style={styles.id}>ID: {profile.id}</Text>
+          <TouchableOpacity
+            style={styles.editBtn}
+            onPress={() => router.push({
+              pathname: "/edit-profile",
+              params: { profile: JSON.stringify(profile) }
+            })}
+          >
+            <Feather name="edit-2" size={18} color="#1A1D16" />
+            <Text style={styles.editText}>Edit Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.settingsBtn}
+            onPress={() => router.push("/app-settings")}
+          >
+            <Ionicons name="settings-outline" size={18} color="#1A1D16" />
+            <Text style={styles.editText}>Settings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={18} color="#E53935" />
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
         </View>
-        <Text style={styles.name}>{profile.name}</Text>
-        <Text style={styles.email}>{profile.email}</Text>
-        <Text style={styles.id}>ID: {profile.id}</Text>
-        <TouchableOpacity
-          style={styles.editBtn}
-          onPress={() => router.push({
-            pathname: "/edit-profile",
-            params: { profile: JSON.stringify(profile) }
-          })}
-        >
-          <Feather name="edit-2" size={18} color="#1A1D16" />
-          <Text style={styles.editText}>Edit Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.settingsBtn}
-          onPress={() => router.push("/app-settings")}
-        >
-          <Ionicons name="settings-outline" size={18} color="#1A1D16" />
-          <Text style={styles.editText}>Settings</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={18} color="#E53935" />
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
-      </View>
 
-      <View style={styles.aboutBox}>
-        <Text style={styles.aboutTitle}>About Me</Text>
-        {!profile.course && !profile.year && !profile.bio ? (
-          <Text style={styles.defaultText}>
-            No info yet. Tap 'Edit Profile' to add.
-          </Text>
-        ) : (
-          <>
-            {profile.course && (
-              <>
-                <Text style={styles.label}>Course / Department</Text>
-                <Text style={styles.value}>{profile.course}</Text>
-              </>
-            )}
-            {profile.year && (
-              <>
-                <Text style={styles.label}>Year Level / Section</Text>
-                <Text style={styles.value}>{profile.year}</Text>
-              </>
-            )}
-            {profile.bio && (
-              <>
-                <Text style={styles.label}>Bio</Text>
-                <Text style={styles.value}>{profile.bio}</Text>
-              </>
-            )}
-          </>
-        )}
-      </View>
-
-    </ScrollView>
+        <View style={styles.aboutBox}>
+          <Text style={styles.aboutTitle}>About Me</Text>
+          {!profile.course && !profile.year && !profile.bio ? (
+            <Text style={styles.defaultText}>
+              No info yet. Tap 'Edit Profile' to add.
+            </Text>
+          ) : (
+            <>
+              {profile.course && (
+                <>
+                  <Text style={styles.label}>Course / Department</Text>
+                  <Text style={styles.value}>{profile.course}</Text>
+                </>
+              )}
+              {profile.year && (
+                <>
+                  <Text style={styles.label}>Year Level / Section</Text>
+                  <Text style={styles.value}>{profile.year}</Text>
+                </>
+              )}
+              {profile.bio && (
+                <>
+                  <Text style={styles.label}>Bio</Text>
+                  <Text style={styles.value}>{profile.bio}</Text>
+                </>
+              )}
+            </>
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 export default SettingsScreen;
 
 const styles = StyleSheet.create({
-  container: { alignItems: "center", padding: 16 },
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#FFFBF0",
+  },
+  container: {
+    alignItems: "center",
+    padding: 16,
+    paddingBottom: 40,
+  },
   adminToggle: {
     position: "absolute",
     top: 50,

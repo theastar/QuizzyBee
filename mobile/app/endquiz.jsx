@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet,} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 const EndQuiz = () => {
@@ -14,51 +14,57 @@ const EndQuiz = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        {/* Header */}
-        <Text style={styles.completeText}>Quiz Complete!</Text>
-        <Text style={styles.congratsText}>Congratulations</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.card}>
+          {/* Header */}
+          <Text style={styles.completeText}>Quiz Complete!</Text>
+          <Text style={styles.congratsText}>Congratulations</Text>
 
-        {/* Score Display */}
-        <Text style={styles.scoreText}>{score}%</Text>
-        <Text style={styles.scoreLabel}>Your Score</Text>
+          {/* Score Display */}
+          <Text style={styles.scoreText}>{score}%</Text>
+          <Text style={styles.scoreLabel}>Your Score</Text>
 
-        {/* Results Boxes */}
-        <View style={styles.resultRow}>
-          <View style={[styles.resultBox, styles.correctBox]}>
-            <Text style={styles.resultNumGreen}>{correct}</Text>
-            <View style={styles.resultLabelWrapper}>
-              <Text style={styles.resultLabelGreen}>Correct</Text>
-              <Text style={styles.resultLabelGreen}>Answer</Text>
+          {/* Results Boxes */}
+          <View style={styles.resultRow}>
+            <View style={[styles.resultBox, styles.correctBox]}>
+              <Text style={styles.resultNumGreen}>{correct}</Text>
+              <View style={styles.resultLabelWrapper}>
+                <Text style={styles.resultLabelGreen}>Correct</Text>
+                <Text style={styles.resultLabelGreen}>Answer</Text>
+              </View>
+            </View>
+            <View style={[styles.resultBox, styles.wrongBox]}>
+              <Text style={styles.resultNumRed}>{wrong}</Text>
+              <View style={styles.resultLabelWrapper}>
+                <Text style={styles.resultLabelRed}>Wrong</Text>
+                <Text style={styles.resultLabelRed}>Answer</Text>
+              </View>
             </View>
           </View>
-          <View style={[styles.resultBox, styles.wrongBox]}>
-            <Text style={styles.resultNumRed}>{wrong}</Text>
-            <View style={styles.resultLabelWrapper}>
-              <Text style={styles.resultLabelRed}>Wrong</Text>
-              <Text style={styles.resultLabelRed}>Answer</Text>
-            </View>
+
+          <View style={styles.totalQuestionsBox}>
+            <Text style={styles.totalQuestionsNum}>{total}</Text>
+            <Text style={styles.totalQuestionsLabel}>Total Questions</Text>
           </View>
-        </View>
 
-        <View style={styles.totalQuestionsBox}>
-          <Text style={styles.totalQuestionsNum}>{total}</Text>
-          <Text style={styles.totalQuestionsLabel}>Total Questions</Text>
+          {/* Return Button */}
+          <TouchableOpacity style={styles.returnButton} onPress={handleReturn}>
+            <Text style={styles.returnButtonText}>Return to Quizzes</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Return Button */}
-        <TouchableOpacity style={styles.returnButton} onPress={handleReturn}>
-          <Text style={styles.returnButtonText}>Return to Quizzes</Text>
-        </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 export default EndQuiz;
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#FFFBE9",
+  },
   container: {
     flex: 1,
     backgroundColor: "#FFFBE9",

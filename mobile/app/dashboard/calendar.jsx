@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { Ionicons } from "@expo/vector-icons";
 import BackButton from "../../components/BackButton";
@@ -8,7 +8,6 @@ import { useCalendar } from "../../context/CalendarContext";
 import { useRouter } from "expo-router";
 
 function CalendarPage() {
-  // Consume calendar context
   const {
     events,
     selectedDate,
@@ -22,7 +21,6 @@ function CalendarPage() {
     TYPE_COLORS,
   } = useCalendar();
 
-  // Prepare marked dates for calendar UI
   const markDates = {};
   events.forEach((ev) => {
     markDates[ev.date] = { marked: true, dotColor: "#FFA000" };
@@ -35,7 +33,6 @@ function CalendarPage() {
     };
   }
 
-  // Handlers for UI actions
   const router = useRouter();
   const handleAddEvent = () => {
     router.push(`/AddEventPage?date=${selectedDate}`);
@@ -44,124 +41,124 @@ function CalendarPage() {
   const handleDeletePress = (id) => openDeleteModal(id);
 
   return (
-    <ScrollView contentContainerStyle={styles.root}>
-      {/* Back button */}
+    <SafeAreaView style={styles.safeArea}>
       <View style={styles.backButtonRow}>
         <BackButton />
       </View>
-
-      {/* Add event button */}
-      <View style={styles.addRow}>
-        <TouchableOpacity style={styles.addBtn} onPress={handleAddEvent}>
-          <Ionicons name="add-circle-outline" size={24} color="#fff" />
-          <Text style={styles.addBtnText}>Add Event</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Calendar component */}
-      <View style={styles.calendarCard}>
-        <Calendar
-          style={styles.calendar}
-          current={selectedDate}
-          onDayPress={day => setSelectedDate(day.dateString)}
-          markedDates={markDates}
-          theme={{
-            calendarBackground: "#FFFBF0",
-            todayTextColor: "#FEC200",
-            selectedDayBackgroundColor: "#FDEBA1",
-            selectedDayTextColor: "#F57F17",
-            arrowColor: "#FE9000",
-            monthTextColor: "#1A1D16",
-            dayTextColor: "#583C19",
-            textDayFontFamily: "Poppins-Regular",
-            textMonthFontFamily: "Poppins-SemiBold",
-            textDayHeaderFontFamily: "Poppins-SemiBold"
-          }}
-        />
-      </View>
-
-      {/* Event types legend */}
-      <View style={styles.infoCard}>
-        <Text style={styles.cardHeader}>Event Types</Text>
-        <View style={styles.cardListRow}>
-          {EVENT_TYPES.map(type => (
-            <View key={type} style={styles.cardListItem}>
-              <View style={[styles.typeDot, { backgroundColor: TYPE_COLORS[type] }]} />
-              <Text style={styles.cardLabel}>{type}</Text>
-            </View>
-          ))}
+      <ScrollView contentContainerStyle={styles.root}>
+        <View style={styles.addRow}>
+          <TouchableOpacity style={styles.addBtn} onPress={handleAddEvent}>
+            <Ionicons name="add-circle-outline" size={24} color="#fff" />
+            <Text style={styles.addBtnText}>Add Event</Text>
+          </TouchableOpacity>
         </View>
-      </View>
 
-      {/* Upcoming events */}
-      <View style={styles.eventsCard}>
-        <Text style={styles.cardHeader}>Upcoming Events</Text>
-        {events
-          .filter(ev => !selectedDate || ev.date === selectedDate)
-          .sort((a, b) => a.date.localeCompare(b.date))
-          .slice(0, 5)
-          .map(item => (
-            <View key={item.id} style={styles.eventItemOuter}>
-              <View style={styles.eventItemMain}>
-                <View style={styles.eventDotSection}>
-                  <View style={[
-                    styles.eventDot,
-                    { backgroundColor: TYPE_COLORS[item.type] }
-                  ]} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.eventTitle}>{item.title}</Text>
-                  <Text style={styles.eventDate}>
-                    {new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                  </Text>
-                  <View style={[
-                    styles.priorityTag,
-                    { borderColor: "#FDC600", backgroundColor: "#FFF9D5" }
-                  ]}>
-                    <Text style={[
-                      styles.priorityText,
-                      { color: "#E17203" }
-                    ]}>{item.priority}</Text>
-                  </View>
-                </View>
-                <TouchableOpacity
-                  onPress={() => handleDeletePress(item.id)}
-                  style={styles.deleteButton}
-                  hitSlop={8}
-                >
-                  <Ionicons name="trash" size={18} color="#E17203" />
-                </TouchableOpacity>
+        <View style={styles.calendarCard}>
+          <Calendar
+            style={styles.calendar}
+            current={selectedDate}
+            onDayPress={day => setSelectedDate(day.dateString)}
+            markedDates={markDates}
+            theme={{
+              calendarBackground: "#FFFBF0",
+              todayTextColor: "#FEC200",
+              selectedDayBackgroundColor: "#FDEBA1",
+              selectedDayTextColor: "#F57F17",
+              arrowColor: "#FE9000",
+              monthTextColor: "#1A1D16",
+              dayTextColor: "#583C19",
+              textDayFontFamily: "Poppins-Regular",
+              textMonthFontFamily: "Poppins-SemiBold",
+              textDayHeaderFontFamily: "Poppins-SemiBold"
+            }}
+          />
+        </View>
+
+        <View style={styles.infoCard}>
+          <Text style={styles.cardHeader}>Event Types</Text>
+          <View style={styles.cardListRow}>
+            {EVENT_TYPES.map(type => (
+              <View key={type} style={styles.cardListItem}>
+                <View style={[styles.typeDot, { backgroundColor: TYPE_COLORS[type] }]} />
+                <Text style={styles.cardLabel}>{type}</Text>
               </View>
-            </View>
-          ))}
-        {events.filter(ev => !selectedDate || ev.date === selectedDate).length === 0 && (
-          <Text style={styles.noEventsText}>No events yet.</Text>
-        )}
-      </View>
-      
-      {/* Delete Modal */}
-      <DeleteModal
-        visible={deleteModalVisible}
-        onConfirm={confirmDelete}
-        onCancel={cancelDelete}
-      />
-    </ScrollView>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.eventsCard}>
+          <Text style={styles.cardHeader}>Upcoming Events</Text>
+          {events
+            .filter(ev => !selectedDate || ev.date === selectedDate)
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .slice(0, 5)
+            .map(item => (
+              <View key={item.id} style={styles.eventItemOuter}>
+                <View style={styles.eventItemMain}>
+                  <View style={styles.eventDotSection}>
+                    <View style={[
+                      styles.eventDot,
+                      { backgroundColor: TYPE_COLORS[item.type] }
+                    ]} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.eventTitle}>{item.title}</Text>
+                    <Text style={styles.eventDate}>
+                      {new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </Text>
+                    <View style={[
+                      styles.priorityTag,
+                      { borderColor: "#FDC600", backgroundColor: "#FFF9D5" }
+                    ]}>
+                      <Text style={[
+                        styles.priorityText,
+                        { color: "#E17203" }
+                      ]}>{item.priority}</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => handleDeletePress(item.id)}
+                    style={styles.deleteButton}
+                    hitSlop={8}
+                  >
+                    <Ionicons name="trash" size={18} color="#E17203" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          {events.filter(ev => !selectedDate || ev.date === selectedDate).length === 0 && (
+            <Text style={styles.noEventsText}>No events yet.</Text>
+          )}
+        </View>
+
+        <DeleteModal
+          visible={deleteModalVisible}
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 export default CalendarPage;
 
 const styles = StyleSheet.create({
-  root: {
+  safeArea: {
     flex: 1,
     backgroundColor: "#FFFBF0",
-    paddingHorizontal: 10,
-    paddingTop: 35,
   },
   backButtonRow: {
-    paddingLeft: 10,
+    paddingLeft: 20,
     paddingTop: 1,
     paddingBottom: 10,
+    marginTop: -20,
+  },
+  root: {
+    backgroundColor: "#FFFBF0",
+    paddingHorizontal: 10,
+    paddingTop: 5,
+    paddingBottom: 20,
   },
   addRow: {
     flexDirection: "row",

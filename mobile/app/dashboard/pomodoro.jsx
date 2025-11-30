@@ -1,12 +1,12 @@
 import React, { useState, useRef } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import BackButton from "../../components/BackButton"; 
+import BackButton from "../../components/BackButton";
 
 function Pomodoro() {
   const router = useRouter();
-  const [mode, setMode] = useState("study"); 
+  const [mode, setMode] = useState("study");
   const [timer, setTimer] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const timerRef = useRef(null);
@@ -20,7 +20,6 @@ function Pomodoro() {
         setTimer((prev) => {
           if (prev > 0) return prev - 1;
           else {
-            // When timer finishes, switch mode
             let newMode = mode === "study" ? "break" : "study";
             setMode(newMode);
             return newMode === "study" ? studyMinutes * 60 : breakMinutes * 60;
@@ -50,84 +49,87 @@ function Pomodoro() {
   };
 
   return (
-    <View style={styles.page}>
-      {/* Back Button */}
+    <SafeAreaView style={styles.safeArea}>
       <View style={styles.backBtnArea}>
         <BackButton />
       </View>
-
-      {/* Timer Card */}
-      <View style={styles.timerCard}>
-        <Text style={styles.sessionTitle}>Focus Session</Text>
-        <View style={styles.modeRow}>
-          <TouchableOpacity
-            onPress={() => selectMode("study")}
-            style={[
-              styles.modeBtn,
-              mode === "study" && { backgroundColor: "#E17203", borderWidth: 0 },
-            ]}
-          >
-            <Text
+      <View style={styles.page}>
+        <View style={styles.timerCard}>
+          <Text style={styles.sessionTitle}>Focus Session</Text>
+          <View style={styles.modeRow}>
+            <TouchableOpacity
+              onPress={() => selectMode("study")}
               style={[
-                styles.modeText,
-                mode === "study" ? { color: "#FFFBF0" } : { color: "#E17203" },
+                styles.modeBtn,
+                mode === "study" && { backgroundColor: "#E17203", borderWidth: 0 },
               ]}
             >
-              Study (25 min)
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => selectMode("break")}
-            style={[
-              styles.modeBtn,
-              mode === "break" && { backgroundColor: "#FE9A00", borderWidth: 0 },
-            ]}
-          >
-            <Text
+              <Text
+                style={[
+                  styles.modeText,
+                  mode === "study" ? { color: "#FFFBF0" } : { color: "#E17203" },
+                ]}
+              >
+                Study (25 min)
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => selectMode("break")}
               style={[
-                styles.modeText,
-                mode === "break" ? { color: "#FFFBF0" } : { color: "#FE9A00" },
+                styles.modeBtn,
+                mode === "break" && { backgroundColor: "#FE9A00", borderWidth: 0 },
               ]}
             >
-              Break (5 min)
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.time}>{formatTime(timer)}</Text>
-        <Text style={styles.subtitle}>Bee-lieve in yourself!</Text>
-        <View style={styles.btnRow}>
-          <TouchableOpacity style={styles.startBtn} onPress={handleStartPause}>
-            <Ionicons
-              name={isRunning ? "pause" : "play"}
-              color="#fff"
-              size={23}
-              style={{ marginRight: 5 }}
-            />
-            <Text style={styles.startBtnText}>{isRunning ? "Pause" : "Start"}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.resetBtn} onPress={handleReset}>
-            <Ionicons name="refresh" color="#E17203" size={23} />
-          </TouchableOpacity>
+              <Text
+                style={[
+                  styles.modeText,
+                  mode === "break" ? { color: "#FFFBF0" } : { color: "#FE9A00" },
+                ]}
+              >
+                Break (5 min)
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.time}>{formatTime(timer)}</Text>
+          <Text style={styles.subtitle}>Bee-lieve in yourself!</Text>
+          <View style={styles.btnRow}>
+            <TouchableOpacity style={styles.startBtn} onPress={handleStartPause}>
+              <Ionicons
+                name={isRunning ? "pause" : "play"}
+                color="#fff"
+                size={23}
+                style={{ marginRight: 5 }}
+              />
+              <Text style={styles.startBtnText}>{isRunning ? "Pause" : "Start"}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.resetBtn} onPress={handleReset}>
+              <Ionicons name="refresh" color="#E17203" size={23} />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 export default Pomodoro;
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#FFFBF0",
+  },
+  backBtnArea: {
+    paddingLeft: 20,
+    paddingTop: 1,
+    paddingBottom: 10,
+    marginTop: -20,
+  },
   page: {
     flex: 1,
     backgroundColor: "#FFFBF0",
     padding: 18,
     justifyContent: "flex-start",
-  },
-  backBtnArea: {
-    position: "absolute",
-    top: 40,
-    left: 20,
-    zIndex: 10,
   },
   timerCard: {
     backgroundColor: "#FFF",
@@ -143,7 +145,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.07,
     shadowRadius: 10,
     elevation: 2,
-    marginTop: 80, 
+    marginTop: 80,
   },
   sessionTitle: {
     fontFamily: "Poppins_400Regular",

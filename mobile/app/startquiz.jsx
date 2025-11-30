@@ -3,7 +3,7 @@ import {
   View, Text, TouchableOpacity, ScrollView, StyleSheet, Animated,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import BackButton from '../components/BackButton'; 
+import BackButton from '../components/BackButton';
 
 const StartQuiz = () => {
   const params = useLocalSearchParams();
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     height: 44,
   },
   backButtonWrapper: {
-    marginTop: -5, 
+    marginTop: -67,
     marginLeft: 10,
   },
   quizCard: {
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     borderColor: '#FDEBA1',
     backgroundColor: '#fff',
     elevation: 3,
-  },  
+  },
   quizTitle: {
     fontSize: 20,
     color: '#1A1D16',

@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: "#FFFBF0", padding: 18 },
   backBtnArea: {
     position: "absolute",
-    top: 40,
+    top: 29,
     left: 20,
     zIndex: 10,
   },

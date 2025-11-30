@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingTop: 1,
     paddingBottom: 10,
-    marginTop: -9,
+    marginTop: -20,
   },
   title: {
     fontFamily: "Poppins_700Bold",

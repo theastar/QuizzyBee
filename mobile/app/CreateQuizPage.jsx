@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
+import BackButton from '../components/BackButton';
 
 export default function CreateQuizPage() {
   const router = useRouter();
@@ -60,12 +61,9 @@ export default function CreateQuizPage() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.pageContainer}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backButtonText}>←</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Create New Quiz</Text>
-          <View style={styles.placeholder} />
+          <BackButton />
         </View>
+        <Text style={styles.pageTitle}>Create New Quiz</Text>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.section}>
             <Text style={styles.label}>Quiz Title</Text>
@@ -156,35 +154,19 @@ const styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
     backgroundColor: '#FFFBF0',
-    paddingTop: 20,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#FDEBA1',
+    paddingTop: 1,
+    paddingBottom: 10,
+    marginTop: -20,
   },
-  headerTitle: {
+  pageTitle: {
     fontSize: 18,
     fontFamily: 'Poppins_600SemiBold',
     color: '#1A1D16',
-  },
-  backButton: {
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backButtonText: {
-    fontSize: 24,
-    color: '#808080',
-  },
-  placeholder: {
-    width: 30,
-    height: 30,
+    paddingHorizontal: 20,
+    marginBottom: 10,
   },
   scrollView: {
     paddingHorizontal: 20,

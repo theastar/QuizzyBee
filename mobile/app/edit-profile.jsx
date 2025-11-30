@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import BackButton from "../components/BackButton";
 
@@ -32,11 +32,10 @@ function EditProfile() {
     }
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.safeArea}>
             <View style={styles.backBtnArea}>
                 <BackButton />
             </View>
-
             <ScrollView
                 style={styles.scrollView}
                 contentContainerStyle={styles.scrollContent}
@@ -107,31 +106,29 @@ function EditProfile() {
                     <Text style={styles.saveText}>Save Changes</Text>
                 </TouchableOpacity>
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 }
 
 export default EditProfile;
 
 const styles = StyleSheet.create({
-    container: {
+    safeArea: {
         flex: 1,
         backgroundColor: "#FFFBF0",
-        padding: 16,
     },
     backBtnArea: {
-        position: "absolute",
-        top: 40,
-        left: 20,
-        zIndex: 10,
+        paddingLeft: 20,
+        paddingTop: 1,
+        paddingBottom: 10,
+        marginTop: -20,
     },
     scrollView: {
         flex: 1,
     },
     scrollContent: {
-        paddingHorizontal: 8,
+        paddingHorizontal: 24,
         paddingBottom: 40,
-        marginTop: 80,
     },
     title: {
         fontSize: 22,

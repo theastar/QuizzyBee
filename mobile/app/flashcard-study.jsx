@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { FlashcardsContext } from "../context/FlashcardsContext";
@@ -20,132 +20,134 @@ function FlashcardStudy() {
   const card = deck.cards[index];
 
   return (
-    <View style={styles.page}>
-      <View style={styles.backBtnArea}>
-        <BackButton />
-      </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.page}>
+        <View style={styles.backBtnArea}>
+          <BackButton />
+        </View>
 
-      <View style={{ flex: 1, paddingTop: 80 }}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.box}>
-            <Text style={styles.header}>{deck.title}</Text>
-            <Text style={styles.cardCount}>
-              Card {index + 1} of {deck.cards.length}
-            </Text>
+        <View style={{ flex: 1, paddingTop: 80 }}>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={styles.box}>
+              <Text style={styles.header}>{deck.title}</Text>
+              <Text style={styles.cardCount}>
+                Card {index + 1} of {deck.cards.length}
+              </Text>
 
-            {deck.cards.length === 0 ? (
-              <Text style={styles.noCards}>No flashcards created.</Text>
-            ) : (
-              <TouchableOpacity
-                style={[styles.card, flipped && { backgroundColor: "#4CAF50" }]}
-                onPress={() => setFlipped((f) => !f)}
-                activeOpacity={0.93}
-              >
-                <View style={styles.cardInner}>
-                  <Text style={styles.cardTopText}>{flipped ? "Answer" : "Question"}</Text>
-                  <View style={styles.cardTextContainer}>
-                    <Text style={styles.cardText}>{flipped ? card.answer : card.question}</Text>
-                  </View>
-                  <Text style={styles.cardBottomText}>
-                    Click to reveal {flipped ? "question" : "answer"}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
-
-            <View style={styles.navRow}>
-              <TouchableOpacity
-                disabled={index === 0}
-                onPress={() => {
-                  setIndex((i) => i - 1);
-                  setFlipped(false);
-                }}
-              >
-                <View style={[styles.navButton, index === 0 && styles.disabledNavButton]}>
-                  <Ionicons
-                    name="arrow-back"
-                    size={28}
-                    color={index === 0 ? "#FDEBA1" : "#FA9F00"}
-                  />
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                disabled={index === deck.cards.length - 1}
-                onPress={() => {
-                  setIndex((i) => i + 1);
-                  setFlipped(false);
-                }}
-              >
-                <View
-                  style={[
-                    styles.navButton,
-                    index === deck.cards.length - 1 && styles.disabledNavButton,
-                  ]}
+              {deck.cards.length === 0 ? (
+                <Text style={styles.noCards}>No flashcards created.</Text>
+              ) : (
+                <TouchableOpacity
+                  style={[styles.card, flipped && { backgroundColor: "#4CAF50" }]}
+                  onPress={() => setFlipped((f) => !f)}
+                  activeOpacity={0.93}
                 >
-                  <Ionicons
-                    name="arrow-forward"
-                    size={28}
-                    color={index === deck.cards.length - 1 ? "#FDEBA1" : "#FA9F00"}
-                  />
-                </View>
+                  <View style={styles.cardInner}>
+                    <Text style={styles.cardTopText}>{flipped ? "Answer" : "Question"}</Text>
+                    <View style={styles.cardTextContainer}>
+                      <Text style={styles.cardText}>{flipped ? card.answer : card.question}</Text>
+                    </View>
+                    <Text style={styles.cardBottomText}>
+                      Click to reveal {flipped ? "question" : "answer"}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+
+              <View style={styles.navRow}>
+                <TouchableOpacity
+                  disabled={index === 0}
+                  onPress={() => {
+                    setIndex((i) => i - 1);
+                    setFlipped(false);
+                  }}
+                >
+                  <View style={[styles.navButton, index === 0 && styles.disabledNavButton]}>
+                    <Ionicons
+                      name="arrow-back"
+                      size={28}
+                      color={index === 0 ? "#FDEBA1" : "#FA9F00"}
+                    />
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  disabled={index === deck.cards.length - 1}
+                  onPress={() => {
+                    setIndex((i) => i + 1);
+                    setFlipped(false);
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.navButton,
+                      index === deck.cards.length - 1 && styles.disabledNavButton,
+                    ]}
+                  >
+                    <Ionicons
+                      name="arrow-forward"
+                      size={28}
+                      color={index === deck.cards.length - 1 ? "#FDEBA1" : "#FA9F00"}
+                    />
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.actionRow}>
+              <TouchableOpacity
+                style={styles.editBtn}
+                onPress={() =>
+                  router.push({
+                    pathname: "/EditFlashcardPage",
+                    params: {
+                      deckId: deck.id,
+                      cardIndex: index,
+                      q: card.question,
+                      a: card.answer,
+                    },
+                  })
+                }
+                disabled={!card}
+              >
+                <Text style={styles.editBtnText}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteBtn}
+                onPress={() => setShowDelete(true)}
+                disabled={!card}
+              >
+                <Text style={styles.deleteBtnText}>Delete</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </ScrollView>
+        </View>
 
-          <View style={styles.actionRow}>
-            <TouchableOpacity
-              style={styles.editBtn}
-              onPress={() =>
-                router.push({
-                  pathname: "/EditFlashcardPage",
-                  params: {
-                    deckId: deck.id,
-                    cardIndex: index,
-                    q: card.question,
-                    a: card.answer,
-                  },
-                })
-              }
-              disabled={!card}
-            >
-              <Text style={styles.editBtnText}>Edit</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.deleteBtn}
-              onPress={() => setShowDelete(true)}
-              disabled={!card}
-            >
-              <Text style={styles.deleteBtnText}>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
+        <DeleteModal
+          visible={showDelete}
+          onConfirm={() => {
+            deleteCardFromDeck(deck.id, index);
+            setShowDelete(false);
+            setIndex((i) => Math.max(0, i - 1));
+            setFlipped(false);
+          }}
+          onCancel={() => setShowDelete(false)}
+        />
       </View>
-
-      <DeleteModal
-        visible={showDelete}
-        onConfirm={() => {
-          deleteCardFromDeck(deck.id, index);
-          setShowDelete(false);
-          setIndex((i) => Math.max(0, i - 1));
-          setFlipped(false);
-        }}
-        onCancel={() => setShowDelete(false)}
-      />
-    </View>
+    </SafeAreaView>
   );
 }
 
 export default FlashcardStudy;
 
 const styles = StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: "#FFFBF0" },
   page: { flex: 1, backgroundColor: "#FFFBF0", padding: 18, justifyContent: "center" },
   backBtnArea: {
     backgroundColor: "#FFFBF0",
     position: "absolute",
     left: 20,
-    top: 26,
-    right: 0,
+    top: -21,
     height: 50,
     flexDirection: "row",
     alignItems: "center",
