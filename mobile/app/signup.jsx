@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, Image, StyleSheet, SafeAreaView, ScrollView } from "react-native";
+import { View, Text, TextInput, Pressable, Image, StyleSheet, ScrollView } from "react-native";
 import { useRouter, Link } from "expo-router";
 import BackButton from "../components/BackButton";
 import { Ionicons } from "@expo/vector-icons";
 
 function SignUp() {
-  // Password visibility states and input values
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [name, setName] = useState("");
@@ -16,115 +15,113 @@ function SignUp() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <BackButton />
       </View>
 
       {/* Scrollable content */}
-      <View style={{ flex: 1, paddingHorizontal: 24 }}>
-        <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-          {/* Bee icon */}
-          <Image source={require("../assets/images/bee_icon.png")} style={styles.beeLogo} />
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Bee icon */}
+        <Image source={require("../assets/images/bee_icon.png")} style={styles.beeLogo} />
 
-          {/* Title and subtitle */}
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join QuizzyBee and start studying</Text>
+        {/* Title and subtitle */}
+        <Text style={styles.title}>Create Account</Text>
+        <Text style={styles.subtitle}>Join QuizzyBee and start studying</Text>
 
-          {/* Name input */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Name</Text>
+        {/* Name input */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Name</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your full name"
+            placeholderTextColor="#A25C30"
+            value={name}
+            onChangeText={setName}
+          />
+        </View>
+
+        {/* Student ID input */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Student ID</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your student ID"
+            placeholderTextColor="#A25C30"
+            value={studentId}
+            onChangeText={setStudentId}
+            keyboardType="numeric"
+          />
+        </View>
+
+        {/* Email input */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your email"
+            placeholderTextColor="#A25C30"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </View>
+
+        {/* Password input */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Password</Text>
+          <View style={styles.inputIconWrapper}>
             <TextInput
-              style={styles.input}
-              placeholder="Enter your full name"
+              style={[styles.input, { paddingRight: 40 }]}
+              placeholder="Create a password"
               placeholderTextColor="#A25C30"
-              value={name}
-              onChangeText={setName}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!passwordVisible}
             />
+            <Pressable onPress={() => setPasswordVisible((v) => !v)} style={styles.iconBtn}>
+              <Ionicons name={passwordVisible ? "eye" : "eye-off"} size={24} color="#A25C30" />
+            </Pressable>
           </View>
+        </View>
 
-          {/* Student ID input */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Student ID</Text>
+        {/* Confirm password input */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Confirm Password</Text>
+          <View style={styles.inputIconWrapper}>
             <TextInput
-              style={styles.input}
-              placeholder="Enter your student ID"
+              style={[styles.input, { paddingRight: 40 }]}
+              placeholder="Confirm your password"
               placeholderTextColor="#A25C30"
-              value={studentId}
-              onChangeText={setStudentId}
-              keyboardType="numeric"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry={!confirmVisible}
             />
+            <Pressable onPress={() => setConfirmVisible((v) => !v)} style={styles.iconBtn}>
+              <Ionicons name={confirmVisible ? "eye" : "eye-off"} size={24} color="#A25C30" />
+            </Pressable>
           </View>
+        </View>
 
-          {/* Email input */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your email"
-              placeholderTextColor="#A25C30"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
+        {/* Sign Up button */}
+        <Pressable
+          onPress={() => router.push("/tabs/home")}
+          style={({ pressed }) => [styles.actionBtn, { backgroundColor: pressed ? "#E17203" : "#FE9A00" }]}
+        >
+          <Text style={styles.actionBtnText}>Sign Up</Text>
+        </Pressable>
 
-          {/* Password input */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
-            <View style={styles.inputIconWrapper}>
-              <TextInput
-                style={[styles.input, { paddingRight: 40 }]}
-                placeholder="Create a password"
-                placeholderTextColor="#A25C30"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!passwordVisible}
-              />
-              <Pressable onPress={() => setPasswordVisible((v) => !v)} style={styles.iconBtn}>
-                <Ionicons name={passwordVisible ? "eye" : "eye-off"} size={24} color="#A25C30" />
-              </Pressable>
-            </View>
-          </View>
-
-          {/* Confirm password input */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Confirm Password</Text>
-            <View style={styles.inputIconWrapper}>
-              <TextInput
-                style={[styles.input, { paddingRight: 40 }]}
-                placeholder="Confirm your password"
-                placeholderTextColor="#A25C30"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry={!confirmVisible}
-              />
-              <Pressable onPress={() => setConfirmVisible((v) => !v)} style={styles.iconBtn}>
-                <Ionicons name={confirmVisible ? "eye" : "eye-off"} size={24} color="#A25C30" />
-              </Pressable>
-            </View>
-          </View>
-
-          {/* Sign Up button */}
-          <Pressable
-            onPress={() => router.push("/tabs/home")}
-            style={({ pressed }) => [styles.actionBtn, { backgroundColor: pressed ? "#E17203" : "#FE9A00" }]}
-          >
-            <Text style={styles.actionBtnText}>Sign Up</Text>
-          </Pressable>
-
-          {/* Link to Login */}
-          <Text style={styles.signupContainer}>
-            Already have an account?{" "}
-            <Link href="/login" asChild>
-              <Text style={styles.signupText}>Log In</Text>
-            </Link>
-          </Text>
-        </ScrollView>
-      </View>
-    </SafeAreaView>
+        {/* Link to Login */}
+        <Text style={styles.signupContainer}>
+          Already have an account?{" "}
+          <Link href="/login" asChild>
+            <Text style={styles.signupText}>Log In</Text>
+          </Link>
+        </Text>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -143,10 +140,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     minHeight: 50,
   },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+  },
   beeLogo: {
     width: 380,
     height: 100,
     alignSelf: "center",
+    marginTop: 0,
   },
   title: {
     textAlign: "center",

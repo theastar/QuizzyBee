@@ -1,0 +1,197 @@
+import React, { useState } from "react";
+import { View, Text, Switch, TouchableOpacity, StyleSheet, Pressable, ScrollView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import BackButton from "../components/BackButton";
+
+function AppSettings() {
+    const router = useRouter();
+    const [notif, setNotif] = useState(true);
+    const [pomodoro, setPomodoro] = useState("Medium (25/5)");
+    const pomodoroOptions = [
+        "Short (15/5)",
+        "Medium (25/5)",
+        "Long (50/10)",
+    ];
+    const [showDropdown, setShowDropdown] = useState(false);
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.backBtnArea}>
+                <BackButton />
+            </View>
+
+            <ScrollView
+                style={styles.scrollView}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+            >
+                <Text style={styles.title}>Settings</Text>
+
+                <Text style={styles.sectionTitle}>General</Text>
+                <View style={styles.rowBetween}>
+                    <Text style={styles.label}>Notifications</Text>
+                    <Switch
+                        value={notif}
+                        onValueChange={setNotif}
+                        trackColor={{ false: "#E5E5E5", true: "#E17203" }}
+                        thumbColor="#FFFBF0"
+                        ios_backgroundColor="#E5E5E5"
+                    />
+                </View>
+
+                <Text style={styles.sectionTitle}>Pomodoro</Text>
+                <Pressable
+                    style={styles.pomodoroSelect}
+                    onPress={() => setShowDropdown((v) => !v)}
+                >
+                    <Text style={styles.pomodoroText}>{pomodoro}</Text>
+                    <Ionicons
+                        name={showDropdown ? "chevron-up" : "chevron-down"}
+                        size={22}
+                        color="#A25C30"
+                        style={{ marginLeft: 6 }}
+                    />
+                </Pressable>
+                {showDropdown && (
+                    <View style={styles.dropdownBox}>
+                        {pomodoroOptions.map((option) => (
+                            <TouchableOpacity
+                                key={option}
+                                style={styles.dropdownItem}
+                                onPress={() => {
+                                    setPomodoro(option);
+                                    setShowDropdown(false);
+                                }}
+                            >
+                                <Text style={styles.dropdownText}>{option}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                )}
+
+                <Text style={styles.sectionTitle}>About the App</Text>
+                <View style={styles.aboutBox}>
+                    <Text style={styles.aboutText}>
+                        <Text style={styles.aboutBold}>QuizzyBee</Text>
+                        {" "}(2025) by Althea Navales and Rogin Lagrosas — your ultimate study companion:{" "}
+                        <Text style={{ fontStyle: "italic" }}>
+                            Learn Smarter, Quiz Faster, Bee Better.
+                        </Text>{" "}
+                        🐝
+                    </Text>
+                </View>
+            </ScrollView>
+        </View>
+    );
+}
+
+export default AppSettings;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#FFFBF0",
+        padding: 16,
+    },
+    backBtnArea: {
+        position: "absolute",
+        top: 40,
+        left: 20,
+        zIndex: 10,
+    },
+    scrollView: {
+        flex: 1,
+    },
+    scrollContent: {
+        paddingHorizontal: 8,
+        paddingBottom: 40,
+        marginTop: 80,
+    },
+    title: {
+        fontSize: 22,
+        fontFamily: "Poppins_600SemiBold",
+        color: "#1A1D16",
+        marginBottom: 20,
+    },
+    sectionTitle: {
+        fontFamily: "Poppins_600SemiBold",
+        fontSize: 16,
+        color: "#1A1D16",
+        marginTop: 16,
+        marginBottom: 10,
+        borderBottomWidth: 1.5,
+        borderBottomColor: "#FDEBA1",
+        paddingBottom: 4,
+    },
+    rowBetween: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 6,
+    },
+    label: {
+        color: "#A25C30",
+        fontFamily: "Poppins_400Regular",
+        fontSize: 14,
+    },
+    pomodoroSelect: {
+        flexDirection: "row",
+        alignItems: "center",
+        borderWidth: 2,
+        borderColor: "#FDEBA1",
+        backgroundColor: "#F8F8F8",
+        borderRadius: 8,
+        padding: 12,
+        marginBottom: 8,
+        marginTop: 4,
+        width: "100%",
+        justifyContent: "space-between",
+    },
+    pomodoroText: {
+        color: "#A25C30",
+        fontFamily: "Poppins_400Regular",
+        fontSize: 14,
+        flex: 1,
+    },
+    dropdownBox: {
+        width: "100%",
+        backgroundColor: "#F8F8F8",
+        borderRadius: 8,
+        borderWidth: 2,
+        borderColor: "#FDEBA1",
+        marginTop: -6,
+        marginBottom: 16,
+    },
+    dropdownItem: {
+        paddingVertical: 9,
+        paddingHorizontal: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: "#FDEBA1",
+    },
+    dropdownText: {
+        color: "#A25C30",
+        fontFamily: "Poppins_400Regular",
+        fontSize: 14,
+    },
+    aboutBox: {
+        backgroundColor: "#F8F8F8",
+        borderRadius: 8,
+        borderWidth: 2,
+        borderColor: "#FDEBA1",
+        padding: 12,
+        marginTop: 6,
+    },
+    aboutText: {
+        color: "#A25C30",
+        fontFamily: "Poppins_500Medium",
+        fontSize: 14,
+        lineHeight: 21,
+        textAlign: "justify",
+    },
+    aboutBold: {
+        fontFamily: "Poppins_600SemiBold",
+        fontWeight: "bold",
+        color: "#A25C30",
+    },
+});

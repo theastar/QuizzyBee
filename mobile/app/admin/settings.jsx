@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function AdminSettings() {
   const router = useRouter();
@@ -25,6 +25,14 @@ export default function AdminSettings() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* User Toggle Icon */}
+      <TouchableOpacity
+        style={styles.userToggle}
+        onPress={() => router.push("/tabs/home")}
+      >
+        <MaterialCommunityIcons name="account" size={24} color="#E17203" />
+      </TouchableOpacity>
+
       <View style={styles.editCard}>
         <Text style={styles.headerText}>Admin Profile</Text>
 
@@ -134,6 +142,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFBF0',
     paddingHorizontal: 20,
     paddingTop: 40,
+  },
+  userToggle: {
+    position: "absolute",
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    backgroundColor: "#FFF9ED",
+    borderRadius: 50,
+    padding: 10,
+    borderWidth: 2,
+    borderColor: "#FDEBA1",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   editCard: {
     backgroundColor: '#fff',

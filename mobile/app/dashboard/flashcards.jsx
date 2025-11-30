@@ -61,7 +61,7 @@ function Flashcards() {
                   activeOpacity={0.92}
                   onPress={() =>
                     deck.cards.length === 0
-                      ? router.push({ pathname: "/AddFlashcardsPage", params: { deckId: deck.id }})
+                      ? router.push({ pathname: "/AddFlashcardsPage", params: { deckId: deck.id } })
                       : router.push({ pathname: "/flashcard-study", params: { id: deck.id } })
                   }
                 >
@@ -69,7 +69,7 @@ function Flashcards() {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.addCardBtn}
-                  onPress={() => router.push({ pathname: "/AddFlashcardsPage", params: { deckId: deck.id }})}
+                  onPress={() => router.push({ pathname: "/AddFlashcardsPage", params: { deckId: deck.id } })}
                 >
                   <Ionicons name="add" size={25} color="#111" />
                 </TouchableOpacity>

@@ -2,8 +2,17 @@ import { Stack } from "expo-router";
 import { NotesProvider } from "../context/NotesContext";
 import { FlashcardsProvider } from "../context/FlashcardsContext";
 import { CalendarProvider } from "../context/CalendarContext"; 
-import { useFonts, Poppins_200ExtraLight, Poppins_300Light, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from "@expo-google-fonts/poppins";
+import {
+  useFonts,
+  Poppins_200ExtraLight,
+  Poppins_300Light,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+} from "@expo-google-fonts/poppins";
 import { View, ActivityIndicator } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -24,18 +33,20 @@ function RootLayout() {
   }
 
   return (
-    <NotesProvider>
-      <FlashcardsProvider>
-        <CalendarProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              animation: "fade",
-            }}
-          />
-        </CalendarProvider>
-      </FlashcardsProvider>
-    </NotesProvider>
+    <SafeAreaProvider>
+      <NotesProvider>
+        <FlashcardsProvider>
+          <CalendarProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                animation: "fade",
+              }}
+            />
+          </CalendarProvider>
+        </FlashcardsProvider>
+      </NotesProvider>
+    </SafeAreaProvider>
   );
 }
 

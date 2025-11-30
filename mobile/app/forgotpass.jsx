@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, Image, StyleSheet, SafeAreaView } from "react-native";
+import { View, Text, TextInput, Pressable, Image, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import BackButton from "../components/BackButton";
@@ -12,7 +12,7 @@ function ForgotPass() {
   // Confirmation screen
   if (sent) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <View style={styles.header}>
           <BackButton />
         </View>
@@ -35,13 +35,13 @@ function ForgotPass() {
         >
           <Text style={styles.actionBtnText}>Back To Login</Text>
         </Pressable>
-      </SafeAreaView>
+      </View>
     );
   }
 
   // Initial forgot password screen
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <BackButton />
       </View>
@@ -68,7 +68,7 @@ function ForgotPass() {
       >
         <Text style={styles.actionBtnText}>Send Reset Link</Text>
       </Pressable>
-    </SafeAreaView>
+    </View>
   );
 }
 

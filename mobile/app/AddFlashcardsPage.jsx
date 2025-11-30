@@ -32,7 +32,7 @@ function AddFlashcardsPage() {
 
   return (
     <SafeAreaView style={styles.page}>
-      <KeyboardAvoidingView style={{flex: 1}} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <View style={styles.backButtonRow}>
           <BackButton />
         </View>

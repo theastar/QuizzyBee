@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, Image, StyleSheet, SafeAreaView, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, Pressable, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter, Link } from "expo-router";
 import BackButton from "../components/BackButton";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,7 +9,7 @@ function Login() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <BackButton />
@@ -79,7 +79,7 @@ function Login() {
           <Text style={styles.signupText}>Sign Up</Text>
         </Link>
       </Text>
-    </SafeAreaView>
+    </View>
   );
 }
 

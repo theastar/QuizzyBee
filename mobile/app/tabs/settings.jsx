@@ -1,14 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
-import EditProfileModal from "../../components/EditProfileModal";
-import SettingsModal from "../../components/SettingsModal";
+
 import { Ionicons, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 function SettingsScreen() {
   const router = useRouter();
-  const [editVisible, setEditVisible] = useState(false);
-  const [settingsVisible, setSettingsVisible] = useState(false);
+  const params = useLocalSearchParams();
+
   const [profile, setProfile] = useState({
     name: "Student",
     email: "student@example.com",
@@ -18,12 +17,33 @@ function SettingsScreen() {
     bio: "",
   });
 
+  // Listen for updated profile data from edit-profile page
+  useEffect(() => {
+    if (params.updatedProfile) {
+      try {
+        const updated = JSON.parse(params.updatedProfile);
+        setProfile(updated);
+      } catch (e) {
+        console.error("Failed to parse updated profile:", e);
+      }
+    }
+  }, [params.updatedProfile]);
+
   const handleLogout = () => {
     router.replace("/");
   };
 
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#FFFBF0" }} contentContainerStyle={styles.container}>
+      {/* Admin Toggle Icon */}
+      <TouchableOpacity
+        style={styles.adminToggle}
+        onPress={() => router.push("/admin/dashboard")}
+      >
+        <MaterialCommunityIcons name="shield-account" size={24} color="#E17203" />
+      </TouchableOpacity>
+
       <View style={styles.profileBox}>
         {/* Hexagon Avatar */}
         <View style={styles.hexagonAvatar}>
@@ -35,11 +55,20 @@ function SettingsScreen() {
         <Text style={styles.name}>{profile.name}</Text>
         <Text style={styles.email}>{profile.email}</Text>
         <Text style={styles.id}>ID: {profile.id}</Text>
-        <TouchableOpacity style={styles.editBtn} onPress={() => setEditVisible(true)}>
+        <TouchableOpacity
+          style={styles.editBtn}
+          onPress={() => router.push({
+            pathname: "/edit-profile",
+            params: { profile: JSON.stringify(profile) }
+          })}
+        >
           <Feather name="edit-2" size={18} color="#1A1D16" />
           <Text style={styles.editText}>Edit Profile</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.settingsBtn} onPress={() => setSettingsVisible(true)}>
+        <TouchableOpacity
+          style={styles.settingsBtn}
+          onPress={() => router.push("/app-settings")}
+        >
           <Ionicons name="settings-outline" size={18} color="#1A1D16" />
           <Text style={styles.editText}>Settings</Text>
         </TouchableOpacity>
@@ -48,7 +77,7 @@ function SettingsScreen() {
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.aboutBox}>
         <Text style={styles.aboutTitle}>About Me</Text>
         {!profile.course && !profile.year && !profile.bio ? (
@@ -79,16 +108,6 @@ function SettingsScreen() {
         )}
       </View>
 
-      <EditProfileModal
-        visible={editVisible}
-        onClose={() => setEditVisible(false)}
-        profile={profile}
-        setProfile={setProfile}
-      />
-      <SettingsModal
-        visible={settingsVisible}
-        onClose={() => setSettingsVisible(false)}
-      />
     </ScrollView>
   );
 }
@@ -97,6 +116,22 @@ export default SettingsScreen;
 
 const styles = StyleSheet.create({
   container: { alignItems: "center", padding: 16 },
+  adminToggle: {
+    position: "absolute",
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    backgroundColor: "#FFF9ED",
+    borderRadius: 50,
+    padding: 10,
+    borderWidth: 2,
+    borderColor: "#FDEBA1",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
   profileBox: {
     marginTop: 28,
     width: "100%",
