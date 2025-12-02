@@ -1,18 +1,70 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, Image, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TextInput, Pressable, Image, StyleSheet, ScrollView, Alert, ActivityIndicator } from "react-native";
 import { useRouter, Link } from "expo-router";
 import BackButton from "../components/BackButton";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuthStore } from "../context/AuthStore";
 
 function SignUp() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
-  const [name, setName] = useState("");
-  const [studentId, setStudentId] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const router = useRouter();
+  const { register, isLoading, clearError, logout } = useAuthStore();
+
+  const handleSignUp = async () => {
+    // Clear previous errors
+    clearError();
+
+    // Validation
+    if (!username || !email || !password || !confirmPassword) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    if (username.length < 6) {
+      Alert.alert("Error", "Username should be at least 6 characters long");
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert("Error", "Password should be at least 6 characters long");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match");
+      return;
+    }
+
+    // Call register API
+    const result = await register(username, email, password);
+
+    if (result.success) {
+      // Show success message
+      Alert.alert(
+        "Success!",
+        "Account created successfully! Please log in.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              // Logout to clear the auth state so user has to login
+              logout();
+              // Navigate to login page
+              router.replace("/login");
+            }
+          }
+        ]
+      );
+    } else {
+      // Show error alert
+      Alert.alert("Registration Failed", result.error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -30,28 +82,17 @@ function SignUp() {
         <Text style={styles.title}>Create Account</Text>
         <Text style={styles.subtitle}>Join QuizzyBee and start studying</Text>
 
-        {/* Name input */}
+        {/* Username input */}
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Name</Text>
+          <Text style={styles.label}>Username</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter your full name"
+            placeholder="Enter your username (min 6 characters)"
             placeholderTextColor="#A25C30"
-            value={name}
-            onChangeText={setName}
-          />
-        </View>
-
-        {/* Student ID input */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Student ID</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your student ID"
-            placeholderTextColor="#A25C30"
-            value={studentId}
-            onChangeText={setStudentId}
-            keyboardType="numeric"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            editable={!isLoading}
           />
         </View>
 
@@ -66,6 +107,7 @@ function SignUp() {
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
+            editable={!isLoading}
           />
         </View>
 
@@ -75,11 +117,12 @@ function SignUp() {
           <View style={styles.inputIconWrapper}>
             <TextInput
               style={[styles.input, { paddingRight: 40 }]}
-              placeholder="Create a password"
+              placeholder="Create a password (min 6 characters)"
               placeholderTextColor="#A25C30"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!passwordVisible}
+              editable={!isLoading}
             />
             <Pressable onPress={() => setPasswordVisible((v) => !v)} style={styles.iconBtn}>
               <Ionicons name={passwordVisible ? "eye" : "eye-off"} size={24} color="#A25C30" />
@@ -98,6 +141,7 @@ function SignUp() {
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry={!confirmVisible}
+              editable={!isLoading}
             />
             <Pressable onPress={() => setConfirmVisible((v) => !v)} style={styles.iconBtn}>
               <Ionicons name={confirmVisible ? "eye" : "eye-off"} size={24} color="#A25C30" />
@@ -107,10 +151,15 @@ function SignUp() {
 
         {/* Sign Up button */}
         <Pressable
-          onPress={() => router.push("/tabs/home")}
-          style={({ pressed }) => [styles.actionBtn, { backgroundColor: pressed ? "#E17203" : "#FE9A00" }]}
+          onPress={handleSignUp}
+          disabled={isLoading}
+          style={({ pressed }) => [styles.actionBtn, { backgroundColor: isLoading ? "#CCC" : (pressed ? "#E17203" : "#FE9A00") }]}
         >
-          <Text style={styles.actionBtnText}>Sign Up</Text>
+          {isLoading ? (
+            <ActivityIndicator color="#FFFCD0" />
+          ) : (
+            <Text style={styles.actionBtnText}>Sign Up</Text>
+          )}
         </Pressable>
 
         {/* Link to Login */}

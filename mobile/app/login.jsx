@@ -1,12 +1,38 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, Pressable, Image, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useRouter, Link } from "expo-router";
 import BackButton from "../components/BackButton";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuthStore } from "../context/AuthStore";
 
 function Login() {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
+  const { login, isLoading, error, clearError } = useAuthStore();
+
+  const handleLogin = async () => {
+    // Clear previous errors
+    clearError();
+
+    // Validation
+    if (!email || !password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    // Call login API
+    const result = await login(email, password);
+
+    if (result.success) {
+      // Navigate to home on success
+      router.replace("/tabs/home");
+    } else {
+      // Show error alert
+      Alert.alert("Login Failed", result.error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -27,11 +53,16 @@ function Login() {
 
       {/* Inputs */}
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Email or Username</Text>
+        <Text style={styles.label}>Email</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your email or username"
+          placeholder="Enter your email"
           placeholderTextColor="#A25C30"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          editable={!isLoading}
         />
       </View>
 
@@ -43,6 +74,9 @@ function Login() {
             placeholder="Enter your password"
             placeholderTextColor="#A25C30"
             secureTextEntry={!passwordVisible}
+            value={password}
+            onChangeText={setPassword}
+            editable={!isLoading}
           />
           <TouchableOpacity
             onPress={() => setPasswordVisible((prev) => !prev)}
@@ -63,13 +97,18 @@ function Login() {
 
       {/* Login Button */}
       <Pressable
-        onPress={() => router.push("/tabs/home")}
+        onPress={handleLogin}
+        disabled={isLoading}
         style={({ pressed }) => [
           styles.loginBtn,
-          { backgroundColor: pressed ? "#E17203" : "#FE9A00" },
+          { backgroundColor: isLoading ? "#CCC" : (pressed ? "#E17203" : "#FE9A00") },
         ]}
       >
-        <Text style={styles.loginBtnText}>Login</Text>
+        {isLoading ? (
+          <ActivityIndicator color="#FFFCD0" />
+        ) : (
+          <Text style={styles.loginBtnText}>Login</Text>
+        )}
       </Pressable>
 
       {/* Sign Up link */}
