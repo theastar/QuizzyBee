@@ -26,8 +26,15 @@ function Login() {
     const result = await login(email, password);
 
     if (result.success) {
-      // Navigate to home on success
-      router.replace("/tabs/home");
+      // Get user from store to check role
+      const { user } = useAuthStore.getState();
+
+      // Redirect based on role
+      if (user?.role === 'admin') {
+        router.replace("/admin/dashboard");
+      } else {
+        router.replace("/tabs/home");
+      }
     } else {
       // Show error alert
       Alert.alert("Login Failed", result.error);

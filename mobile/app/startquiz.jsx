@@ -137,25 +137,24 @@ const StartQuiz = () => {
 export default StartQuiz;
 
 const styles = StyleSheet.create({
-  pageBackground: {
-    flex: 1,
-    backgroundColor: '#FFFBF0',
-    justifyContent: 'center'
-  },
+pageBackground: {
+  flex: 1,
+  backgroundColor: '#FFFBF0',
+},
   header: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     paddingHorizontal: 8,
-    paddingVertical: 0,
-    marginTop: 0,
-    height: 44,
+    paddingTop: 12,
+    paddingBottom: 4,
   },
   backButtonWrapper: {
-    marginTop: -67,
+    marginTop: 10,
     marginLeft: 10,
   },
   quizCard: {
     margin: 16,
+    marginTop: 30,
     padding: 24,
     borderRadius: 20,
     borderWidth: 2,

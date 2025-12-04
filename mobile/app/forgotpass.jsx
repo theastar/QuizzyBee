@@ -1,45 +1,187 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, Image, StyleSheet } from "react-native";
+import { View, Text, TextInput, Pressable, Image, StyleSheet, Alert, ActivityIndicator, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import BackButton from "../components/BackButton";
+import { authAPI } from "../services/api";
 
 function ForgotPass() {
   const router = useRouter();
-  const [sent, setSent] = useState(false);
+  const [step, setStep] = useState(1); // 1: Enter email, 2: Enter code & new password
   const [email, setEmail] = useState("");
+  const [resetToken, setResetToken] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false);
 
-  // Confirmation screen
-  if (sent) {
+  const handleSendResetCode = async () => {
+    if (!email) {
+      Alert.alert("Error", "Please enter your email address");
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert("Error", "Please enter a valid email address");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await authAPI.forgotPassword(email);
+
+      // Show the reset code (in production, this would be sent via email)
+      Alert.alert(
+        "Reset Code Sent",
+        `Your reset code is: ${response.resetToken}\n\nIn a real app, this would be sent to your email.`,
+        [
+          {
+            text: "OK",
+            onPress: () => setStep(2)
+          }
+        ]
+      );
+    } catch (error) {
+      console.log("Forgot password error:", error);
+      Alert.alert(
+        "Error",
+        error.response?.data?.message || "Failed to send reset code. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!resetToken || !newPassword || !confirmPassword) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      Alert.alert("Error", "Password should be at least 6 characters long");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await authAPI.resetPassword(email, resetToken, newPassword);
+
+      Alert.alert(
+        "Success!",
+        "Your password has been reset successfully. Please log in with your new password.",
+        [
+          {
+            text: "OK",
+            onPress: () => router.replace("/login")
+          }
+        ]
+      );
+    } catch (error) {
+      console.log("Reset password error:", error);
+      Alert.alert(
+        "Error",
+        error.response?.data?.message || "Failed to reset password. Please check your reset code and try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Step 2: Enter reset code and new password
+  if (step === 2) {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <BackButton />
+          <BackButton onPress={() => setStep(1)} />
         </View>
 
-        <Image source={require("../assets/images/bee_icon.png")} style={styles.beeLogo} />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <Image source={require("../assets/images/bee_icon.png")} style={styles.beeLogo} />
 
-        <Text style={styles.title}>Reset Password</Text>
+          <Text style={styles.title}>Reset Password</Text>
+          <Text style={styles.subtitleCenter}>
+            Enter the reset code and your new password
+          </Text>
 
-        <Text style={styles.subtitleCenter}>
-          We’ve sent password reset{"\n"}instructions to your email.
-        </Text>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Reset Code</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter 6-digit code"
+              placeholderTextColor="#A25C30"
+              value={resetToken}
+              onChangeText={setResetToken}
+              keyboardType="number-pad"
+              maxLength={6}
+              editable={!isLoading}
+            />
+          </View>
 
-        <View style={styles.successIconWrap}>
-          <Ionicons name="checkmark-circle" size={60} color="#50C878" />
-        </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>New Password</Text>
+            <View style={styles.inputIconWrapper}>
+              <TextInput
+                style={[styles.input, { paddingRight: 40 }]}
+                placeholder="Enter new password (min 6 characters)"
+                placeholderTextColor="#A25C30"
+                value={newPassword}
+                onChangeText={setNewPassword}
+                secureTextEntry={!passwordVisible}
+                editable={!isLoading}
+              />
+              <Pressable onPress={() => setPasswordVisible((v) => !v)} style={styles.iconBtn}>
+                <Ionicons name={passwordVisible ? "eye" : "eye-off"} size={24} color="#A25C30" />
+              </Pressable>
+            </View>
+          </View>
 
-        <Pressable
-          onPress={() => router.push("/login")}
-          style={({ pressed }) => [styles.actionBtn, { backgroundColor: pressed ? "#E17203" : "#FE9A00" }]}
-        >
-          <Text style={styles.actionBtnText}>Back To Login</Text>
-        </Pressable>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Confirm New Password</Text>
+            <View style={styles.inputIconWrapper}>
+              <TextInput
+                style={[styles.input, { paddingRight: 40 }]}
+                placeholder="Confirm new password"
+                placeholderTextColor="#A25C30"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry={!confirmVisible}
+                editable={!isLoading}
+              />
+              <Pressable onPress={() => setConfirmVisible((v) => !v)} style={styles.iconBtn}>
+                <Ionicons name={confirmVisible ? "eye" : "eye-off"} size={24} color="#A25C30" />
+              </Pressable>
+            </View>
+          </View>
+
+          <Pressable
+            onPress={handleResetPassword}
+            disabled={isLoading}
+            style={({ pressed }) => [
+              styles.actionBtn,
+              { backgroundColor: isLoading ? "#CCC" : (pressed ? "#E17203" : "#FE9A00") }
+            ]}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#FFFCD0" />
+            ) : (
+              <Text style={styles.actionBtnText}>Reset Password</Text>
+            )}
+          </Pressable>
+        </ScrollView>
       </View>
     );
   }
 
-  // Initial forgot password screen
+  // Step 1: Enter email
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -49,7 +191,7 @@ function ForgotPass() {
       <Image source={require("../assets/images/bee_icon.png")} style={styles.beeLogo} />
 
       <Text style={styles.title}>Forgot Password?</Text>
-      <Text style={styles.subtitleCenter}>Enter your email to reset your password</Text>
+      <Text style={styles.subtitleCenter}>Enter your email to receive a reset code</Text>
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
@@ -59,14 +201,25 @@ function ForgotPass() {
           placeholderTextColor="#A25C30"
           value={email}
           onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          editable={!isLoading}
         />
       </View>
 
       <Pressable
-        onPress={() => setSent(true)}
-        style={({ pressed }) => [styles.actionBtn, { backgroundColor: pressed ? "#E17203" : "#FE9A00" }]}
+        onPress={handleSendResetCode}
+        disabled={isLoading}
+        style={({ pressed }) => [
+          styles.actionBtn,
+          { backgroundColor: isLoading ? "#CCC" : (pressed ? "#E17203" : "#FE9A00") }
+        ]}
       >
-        <Text style={styles.actionBtnText}>Send Reset Link</Text>
+        {isLoading ? (
+          <ActivityIndicator color="#FFFCD0" />
+        ) : (
+          <Text style={styles.actionBtnText}>Send Reset Code</Text>
+        )}
       </Pressable>
     </View>
   );
@@ -116,6 +269,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     fontFamily: "Poppins_400Regular",
   },
+  inputIconWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    position: "relative",
+  },
   input: {
     width: "100%",
     minHeight: 45,
@@ -128,6 +286,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#1A1D16",
     fontFamily: "Poppins_300Light",
+  },
+  iconBtn: {
+    position: "absolute",
+    right: 10,
+    padding: 8,
+    height: "100%",
+    justifyContent: "center",
   },
   actionBtn: {
     borderRadius: 8,
@@ -144,9 +309,5 @@ const styles = StyleSheet.create({
     color: "#FFFCD0",
     fontSize: 18,
     fontFamily: "Poppins_600SemiBold",
-  },
-  successIconWrap: {
-    alignItems: "center",
-    marginVertical: 40,
   },
 });

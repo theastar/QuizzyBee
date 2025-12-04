@@ -1,65 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { Ionicons, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter } from "expo-router";
+import { useAuthStore } from "../../context/AuthStore";
 
 function SettingsScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams();
-
-  const [profile, setProfile] = useState({
-    name: "Student",
-    email: "student@example.com",
-    id: "2023341289",
-    course: "",
-    year: "",
-    bio: "",
-  });
-
-  // Listen for updated profile data from edit-profile page
-  useEffect(() => {
-    if (params.updatedProfile) {
-      try {
-        const updated = JSON.parse(params.updatedProfile);
-        setProfile(updated);
-      } catch (e) {
-        console.error("Failed to parse updated profile:", e);
-      }
-    }
-  }, [params.updatedProfile]);
+  const { user, logout } = useAuthStore();
 
   const handleLogout = () => {
+    logout();
     router.replace("/");
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={{ flex: 1, backgroundColor: "#FFFBF0" }} contentContainerStyle={styles.container}>
-        {/* Admin Toggle Icon */}
-        <TouchableOpacity
-          style={styles.adminToggle}
-          onPress={() => router.push("/admin/dashboard")}
-        >
-          <MaterialCommunityIcons name="shield-account" size={24} color="#E17203" />
-        </TouchableOpacity>
 
         <View style={styles.profileBox}>
           {/* Hexagon Avatar */}
           <View style={styles.hexagonAvatar}>
             <MaterialCommunityIcons name="hexagon" size={170} color="#FA9F40" style={styles.hexagonBg} />
             <Text style={styles.avatarLetter}>
-              {profile.name ? profile.name[0].toUpperCase() : "S"}
+              {user?.name ? user.name[0].toUpperCase() : "S"}
             </Text>
           </View>
-          <Text style={styles.name}>{profile.name}</Text>
-          <Text style={styles.email}>{profile.email}</Text>
-          <Text style={styles.id}>ID: {profile.id}</Text>
+          <Text style={styles.name}>{user?.name || "Student"}</Text>
+          <Text style={styles.email}>{user?.email || "student@example.com"}</Text>
+          <Text style={styles.id}>ID: {user?.studentId || "N/A"}</Text>
           <TouchableOpacity
             style={styles.editBtn}
-            onPress={() => router.push({
-              pathname: "/edit-profile",
-              params: { profile: JSON.stringify(profile) }
-            })}
+            onPress={() => router.push("/edit-profile")}
           >
             <Feather name="edit-2" size={18} color="#1A1D16" />
             <Text style={styles.editText}>Edit Profile</Text>
@@ -79,28 +50,28 @@ function SettingsScreen() {
 
         <View style={styles.aboutBox}>
           <Text style={styles.aboutTitle}>About Me</Text>
-          {!profile.course && !profile.year && !profile.bio ? (
+          {!user?.course && !user?.year && !user?.bio ? (
             <Text style={styles.defaultText}>
               No info yet. Tap 'Edit Profile' to add.
             </Text>
           ) : (
             <>
-              {profile.course && (
+              {user?.course && (
                 <>
                   <Text style={styles.label}>Course / Department</Text>
-                  <Text style={styles.value}>{profile.course}</Text>
+                  <Text style={styles.value}>{user.course}</Text>
                 </>
               )}
-              {profile.year && (
+              {user?.year && (
                 <>
                   <Text style={styles.label}>Year Level / Section</Text>
-                  <Text style={styles.value}>{profile.year}</Text>
+                  <Text style={styles.value}>{user.year}</Text>
                 </>
               )}
-              {profile.bio && (
+              {user?.bio && (
                 <>
                   <Text style={styles.label}>Bio</Text>
-                  <Text style={styles.value}>{profile.bio}</Text>
+                  <Text style={styles.value}>{user.bio}</Text>
                 </>
               )}
             </>
@@ -122,22 +93,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
     paddingBottom: 40,
-  },
-  adminToggle: {
-    position: "absolute",
-    top: 50,
-    right: 20,
-    zIndex: 10,
-    backgroundColor: "#FFF9ED",
-    borderRadius: 50,
-    padding: 10,
-    borderWidth: 2,
-    borderColor: "#FDEBA1",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   profileBox: {
     marginTop: 28,
@@ -250,32 +205,29 @@ const styles = StyleSheet.create({
     borderColor: "#FDEBA1",
     backgroundColor: "#FFFBF0",
     padding: 30,
-    marginBottom: 5,
   },
   aboutTitle: {
     fontFamily: "Poppins_600SemiBold",
-    fontSize: 16,
+    fontSize: 19,
     color: "#1A1D16",
-    marginBottom: 10,
+    marginBottom: 12,
   },
   defaultText: {
     fontFamily: "Poppins_400Regular",
     fontSize: 14,
-    fontStyle: "italic",
     color: "#A25C30",
-    marginTop: 16,
-    textAlign: "center",
+    fontStyle: "italic",
   },
   label: {
-    fontFamily: "Poppins_600SemiBold",
-    fontSize: 15,
-    marginTop: 14,
+    fontFamily: "Poppins_500Medium",
+    fontSize: 13,
     color: "#A25C30",
+    marginTop: 12,
+    marginBottom: 4,
   },
   value: {
     fontFamily: "Poppins_400Regular",
     fontSize: 15,
-    marginTop: 2,
     color: "#1A1D16",
   },
 });

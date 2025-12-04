@@ -24,9 +24,10 @@ api.interceptors.request.use(
 );
 
 export const authAPI = {
-  register: async (username, email, password) => {
+  register: async (name, studentId, email, password) => {
     const response = await api.post('/auth/register', {
-      username,
+      name,
+      studentId,
       email,
       password,
     });
@@ -37,6 +38,42 @@ export const authAPI = {
     const response = await api.post('/auth/login', {
       email,
       password,
+    });
+    return response.data;
+  },
+
+  forgotPassword: async (email) => {
+    const response = await api.post('/auth/forgot-password', {
+      email,
+    });
+    return response.data;
+  },
+
+  resetPassword: async (email, resetToken, newPassword) => {
+    const response = await api.post('/auth/reset-password', {
+      email,
+      resetToken,
+      newPassword,
+    });
+    return response.data;
+  },
+
+  updateProfile: async (userId, name, course, year, bio) => {
+    const response = await api.put('/auth/update-profile', {
+      userId,
+      name,
+      course,
+      year,
+      bio,
+    });
+    return response.data;
+  },
+
+  changePassword: async (userId, currentPassword, newPassword) => {
+    const response = await api.put('/auth/change-password', {
+      userId,
+      currentPassword,
+      newPassword,
     });
     return response.data;
   },

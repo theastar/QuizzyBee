@@ -1,19 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Switch, TouchableOpacity, StyleSheet, Pressable, ScrollView, SafeAreaView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import BackButton from "../components/BackButton";
+import { useSettingsStore } from "../context/SettingsStore";
 
 function AppSettings() {
     const router = useRouter();
-    const [notif, setNotif] = useState(true);
-    const [pomodoro, setPomodoro] = useState("Medium (25/5)");
+    const {
+        pomodoroSetting,
+        setPomodoroSetting,
+        notificationsEnabled,
+        setNotificationsEnabled,
+        loadSettings
+    } = useSettingsStore();
+
     const pomodoroOptions = [
         "Short (15/5)",
         "Medium (25/5)",
         "Long (50/10)",
     ];
     const [showDropdown, setShowDropdown] = useState(false);
+
+    // Load settings when component mounts
+    useEffect(() => {
+        loadSettings();
+    }, []);
+
+    const handlePomodoroChange = (option) => {
+        setPomodoroSetting(option);
+        setShowDropdown(false);
+    };
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -31,8 +48,8 @@ function AppSettings() {
                 <View style={styles.rowBetween}>
                     <Text style={styles.label}>Notifications</Text>
                     <Switch
-                        value={notif}
-                        onValueChange={setNotif}
+                        value={notificationsEnabled}
+                        onValueChange={setNotificationsEnabled}
                         trackColor={{ false: "#E5E5E5", true: "#E17203" }}
                         thumbColor="#FFFBF0"
                         ios_backgroundColor="#E5E5E5"
@@ -44,7 +61,7 @@ function AppSettings() {
                     style={styles.pomodoroSelect}
                     onPress={() => setShowDropdown((v) => !v)}
                 >
-                    <Text style={styles.pomodoroText}>{pomodoro}</Text>
+                    <Text style={styles.pomodoroText}>{pomodoroSetting}</Text>
                     <Ionicons
                         name={showDropdown ? "chevron-up" : "chevron-down"}
                         size={22}
@@ -58,12 +75,12 @@ function AppSettings() {
                             <TouchableOpacity
                                 key={option}
                                 style={styles.dropdownItem}
-                                onPress={() => {
-                                    setPomodoro(option);
-                                    setShowDropdown(false);
-                                }}
+                                onPress={() => handlePomodoroChange(option)}
                             >
                                 <Text style={styles.dropdownText}>{option}</Text>
+                                {pomodoroSetting === option && (
+                                    <Ionicons name="checkmark" size={20} color="#E17203" />
+                                )}
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -110,6 +127,7 @@ const styles = StyleSheet.create({
         fontFamily: "Poppins_600SemiBold",
         color: "#1A1D16",
         marginBottom: 20,
+        textAlign: 'center',
     },
     sectionTitle: {
         fontFamily: "Poppins_600SemiBold",
@@ -165,6 +183,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         borderBottomWidth: 1,
         borderBottomColor: "#FDEBA1",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
     },
     dropdownText: {
         color: "#A25C30",

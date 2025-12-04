@@ -2,10 +2,9 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema({
-    username: {
+    name: {
         type: String,
         required: true,
-        unique: true
     },
     email: {
         type: String,
@@ -17,9 +16,40 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 6
     },
+    studentId: {
+        type: String,
+        required: false,
+        sparse: true,
+        unique: true
+    },
     profileImage: {
         type: String,
         default: "",
+    },
+    role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user'
+    },
+    course: {
+        type: String,
+        default: "",
+    },
+    year: {
+        type: String,
+        default: "",
+    },
+    bio: {
+        type: String,
+        default: "",
+    },
+    resetPasswordToken: {
+        type: String,
+        default: null
+    },
+    resetPasswordExpires: {
+        type: Date,
+        default: null
     }
 
 });

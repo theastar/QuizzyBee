@@ -8,7 +8,8 @@ import { useAuthStore } from "../context/AuthStore";
 function SignUp() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [studentId, setStudentId] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -20,13 +21,13 @@ function SignUp() {
     clearError();
 
     // Validation
-    if (!username || !email || !password || !confirmPassword) {
+    if (!name || !studentId || !email || !password || !confirmPassword) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
 
-    if (username.length < 6) {
-      Alert.alert("Error", "Username should be at least 6 characters long");
+    if (name.length < 3) {
+      Alert.alert("Error", "Name should be at least 3 characters long");
       return;
     }
 
@@ -41,7 +42,7 @@ function SignUp() {
     }
 
     // Call register API
-    const result = await register(username, email, password);
+    const result = await register(name, studentId, email, password);
 
     if (result.success) {
       // Show success message
@@ -82,16 +83,29 @@ function SignUp() {
         <Text style={styles.title}>Create Account</Text>
         <Text style={styles.subtitle}>Join QuizzyBee and start studying</Text>
 
-        {/* Username input */}
+        {/* Name input */}
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Username</Text>
+          <Text style={styles.label}>Name</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter your username (min 6 characters)"
+            placeholder="Enter your full name"
             placeholderTextColor="#A25C30"
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
+            value={name}
+            onChangeText={setName}
+            autoCapitalize="words"
+            editable={!isLoading}
+          />
+        </View>
+
+        {/* Student ID input */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Student ID</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your student ID"
+            placeholderTextColor="#A25C30"
+            value={studentId}
+            onChangeText={setStudentId}
             editable={!isLoading}
           />
         </View>
@@ -211,7 +225,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#A25C30",
     fontFamily: "Poppins_400Regular",
-    marginBottom: 10,
+    marginBottom: 50,
   },
   inputContainer: {
     marginBottom: 16,

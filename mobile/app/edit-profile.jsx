@@ -1,20 +1,22 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Alert, ActivityIndicator } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import BackButton from "../components/BackButton";
+import { useAuthStore } from "../context/AuthStore";
 
 function EditProfile() {
     const router = useRouter();
     const params = useLocalSearchParams();
+    const { user, updateProfile, isLoading } = useAuthStore();
 
-    // Parse profile data from params
+    // Parse profile data from params or use user data from AuthStore
     const initialProfile = params.profile ? JSON.parse(params.profile) : {
-        name: "Student",
-        email: "student@example.com",
-        id: "2023341289",
-        course: "",
-        year: "",
-        bio: "",
+        name: user?.name || "Student",
+        email: user?.email || "student@example.com",
+        id: user?.studentId || "2023341289",
+        course: user?.course || "",
+        year: user?.year || "",
+        bio: user?.bio || "",
     };
 
     const [form, setForm] = useState(initialProfile);
@@ -23,12 +25,35 @@ function EditProfile() {
         setForm(prev => ({ ...prev, [key]: value }));
     }
 
-    function saveChanges() {
-        // Navigate back with updated profile data
-        router.push({
-            pathname: "/tabs/settings",
-            params: { updatedProfile: JSON.stringify(form) }
-        });
+    async function saveChanges() {
+        if (!user?._id) {
+            Alert.alert("Error", "User not found. Please log in again.");
+            return;
+        }
+
+        // Call the update profile API
+        const result = await updateProfile(
+            user._id,
+            form.name,
+            form.course,
+            form.year,
+            form.bio
+        );
+
+        if (result.success) {
+            Alert.alert(
+                "Success",
+                "Profile updated successfully!",
+                [
+                    {
+                        text: "OK",
+                        onPress: () => router.back()
+                    }
+                ]
+            );
+        } else {
+            Alert.alert("Error", result.error || "Failed to update profile");
+        }
     }
 
     return (
@@ -50,17 +75,16 @@ function EditProfile() {
                     placeholderTextColor="#A25C30"
                     value={form.name}
                     onChangeText={v => updateField("name", v)}
+                    editable={!isLoading}
                 />
 
                 <Text style={styles.label}>Email</Text>
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input, styles.idInput]}
+                    editable={false}
+                    value={form.email}
                     placeholder="Email"
                     placeholderTextColor="#A25C30"
-                    value={form.email}
-                    onChangeText={v => updateField("email", v)}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
                 />
 
                 <Text style={styles.label}>Student ID</Text>
@@ -79,6 +103,7 @@ function EditProfile() {
                     placeholderTextColor="#808080"
                     value={form.course}
                     onChangeText={v => updateField("course", v)}
+                    editable={!isLoading}
                 />
 
                 <Text style={styles.label}>Year Level / Section (Optional)</Text>
@@ -88,6 +113,7 @@ function EditProfile() {
                     placeholderTextColor="#808080"
                     value={form.year}
                     onChangeText={v => updateField("year", v)}
+                    editable={!isLoading}
                 />
 
                 <Text style={styles.label}>Bio (Optional)</Text>
@@ -100,10 +126,19 @@ function EditProfile() {
                     multiline
                     numberOfLines={4}
                     textAlignVertical="top"
+                    editable={!isLoading}
                 />
 
-                <TouchableOpacity style={styles.saveBtn} onPress={saveChanges}>
-                    <Text style={styles.saveText}>Save Changes</Text>
+                <TouchableOpacity
+                    style={[styles.saveBtn, isLoading && styles.saveBtnDisabled]}
+                    onPress={saveChanges}
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <ActivityIndicator color="#FFFBF0" />
+                    ) : (
+                        <Text style={styles.saveText}>Save Changes</Text>
+                    )}
                 </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>
@@ -135,6 +170,7 @@ const styles = StyleSheet.create({
         fontFamily: "Poppins_600SemiBold",
         color: "#1A1D16",
         marginBottom: 20,
+        textAlign: 'center',
     },
     label: {
         fontSize: 14,
@@ -166,6 +202,9 @@ const styles = StyleSheet.create({
         backgroundColor: "#FF8927",
         borderRadius: 10,
         alignItems: "center",
+    },
+    saveBtnDisabled: {
+        backgroundColor: "#CCC",
     },
     saveText: {
         color: "#FFFBF0",

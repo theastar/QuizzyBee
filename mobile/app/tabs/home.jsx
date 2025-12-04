@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } fr
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialIcons, Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useAuthStore } from "../../context/AuthStore";
+import { useQuizStore } from "../../context/QuizStore";
 
 const menuData = [
   {
@@ -27,15 +29,20 @@ const menuData = [
   },
 ];
 
-const quizActivities = [
-  { title: "IAS Module 4", date: "3 days ago" },
-  { title: "Mobile Programming Quiz", date: "5 days ago" },
-  { title: "Networking", date: "1 week ago" },
-];
-
 // Main Home screen component
 function Home() {
   const router = useRouter();
+  const { user } = useAuthStore();
+  const { getRecentQuizzes } = useQuizStore();
+
+  // Extract first name from full name
+  const getFirstName = () => {
+    if (!user?.name) return "Student";
+    return user.name.split(" ")[0];
+  };
+
+  // Get recent quiz activities
+  const recentQuizzes = getRecentQuizzes(3);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -45,7 +52,7 @@ function Home() {
         showsVerticalScrollIndicator={false}
       >
         {/* Greeting */}
-        <Text style={styles.header}>Welcome back, Student!</Text>
+        <Text style={styles.header}>Welcome back, {getFirstName()}!</Text>
         <Text style={styles.subheader}>
           Ready to continue your learning journey?
         </Text>
@@ -103,12 +110,18 @@ function Home() {
         {/* Recent quiz activity section */}
         <View style={styles.quizBox}>
           <Text style={styles.quizTitle}>Recent Quiz Activity</Text>
-          {quizActivities.map((activity) => (
-            <View style={styles.quizItem} key={activity.title}>
-              <Text style={styles.quizItemTitle}>{activity.title}</Text>
-              <Text style={styles.quizItemDate}>{activity.date}</Text>
+          {recentQuizzes.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>No quizzes completed yet.</Text>
             </View>
-          ))}
+          ) : (
+            recentQuizzes.map((activity) => (
+              <View style={styles.quizItem} key={activity.id}>
+                <Text style={styles.quizItemTitle}>{activity.title}</Text>
+                <Text style={styles.quizItemDate}>{activity.date}</Text>
+              </View>
+            ))
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -136,7 +149,7 @@ const styles = StyleSheet.create({
     textAlign: "left",
     fontFamily: "Poppins_600SemiBold",
     alignSelf: "flex-start",
-    marginTop: 40,
+    marginTop: -10,
   },
   subheader: {
     fontSize: 15,
@@ -186,6 +199,17 @@ const styles = StyleSheet.create({
     color: "#1A1D16",
     fontFamily: "Poppins_600SemiBold",
     marginBottom: 18,
+  },
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: 30,
+  },
+  emptyStateText: {
+    color: "#99742c",
+    fontFamily: "Poppins_400Regular",
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 4,
   },
   quizItem: {
     borderWidth: 2,

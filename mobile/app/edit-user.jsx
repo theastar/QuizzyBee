@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     color: '#1A1D16',
     marginBottom: 16,
+    textAlign: 'center',
   },
   inputGroup: {
     marginBottom: 16,

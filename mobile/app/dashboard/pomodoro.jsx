@@ -1,20 +1,32 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import BackButton from "../../components/BackButton";
+import { useSettingsStore } from "../../context/SettingsStore";
 
 function Pomodoro() {
   const router = useRouter();
+  const { studyMinutes, breakMinutes, loadSettings } = useSettingsStore();
+
   const [mode, setMode] = useState("study");
-  const [timer, setTimer] = useState(25 * 60);
+  const [timer, setTimer] = useState(studyMinutes * 60);
   const [isRunning, setIsRunning] = useState(false);
   const timerRef = useRef(null);
 
-  const studyMinutes = 25;
-  const breakMinutes = 5;
+  // Load settings when component mounts
+  useEffect(() => {
+    loadSettings();
+  }, []);
 
-  React.useEffect(() => {
+  // Update timer when settings change
+  useEffect(() => {
+    if (!isRunning) {
+      setTimer(mode === "study" ? studyMinutes * 60 : breakMinutes * 60);
+    }
+  }, [studyMinutes, breakMinutes, mode]);
+
+  useEffect(() => {
     if (isRunning) {
       timerRef.current = setInterval(() => {
         setTimer((prev) => {
@@ -30,7 +42,7 @@ function Pomodoro() {
       clearInterval(timerRef.current);
     }
     return () => clearInterval(timerRef.current);
-  }, [isRunning, mode]);
+  }, [isRunning, mode, studyMinutes, breakMinutes]);
 
   const formatTime = (sec) =>
     `${String(Math.floor(sec / 60)).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`;
@@ -70,7 +82,7 @@ function Pomodoro() {
                   mode === "study" ? { color: "#FFFBF0" } : { color: "#E17203" },
                 ]}
               >
-                Study (25 min)
+                Study ({studyMinutes} min)
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -86,7 +98,7 @@ function Pomodoro() {
                   mode === "break" ? { color: "#FFFBF0" } : { color: "#FE9A00" },
                 ]}
               >
-                Break (5 min)
+                Break ({breakMinutes} min)
               </Text>
             </TouchableOpacity>
           </View>
@@ -145,7 +157,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.07,
     shadowRadius: 10,
     elevation: 2,
-    marginTop: 80,
+    marginTop: 10,
   },
   sessionTitle: {
     fontFamily: "Poppins_400Regular",

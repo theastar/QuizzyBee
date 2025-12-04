@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useQuizStore } from '../context/QuizStore';
 
 const EndQuiz = () => {
   const params = useLocalSearchParams();
@@ -8,6 +9,18 @@ const EndQuiz = () => {
   const quiz = JSON.parse(params.quiz);
   const summaryData = JSON.parse(params.summaryData);
   const { correct, wrong, total, score } = summaryData;
+  const { addQuizToHistory } = useQuizStore();
+
+  // Save quiz to history when component mounts
+  useEffect(() => {
+    addQuizToHistory({
+      title: quiz.title,
+      score,
+      correct,
+      wrong,
+      total,
+    });
+  }, []);
 
   const handleReturn = () => {
     router.push('/tabs/quizzybee');
