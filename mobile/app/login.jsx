@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Pressable, Image, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
-import { useRouter, Link } from "expo-router";
+import { useRouter } from "expo-router";
 import BackButton from "../components/BackButton";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../context/AuthStore";
@@ -98,9 +98,11 @@ function Login() {
         </View>
       </View>
 
-      <TouchableOpacity onPress={() => router.push("/forgotpass")}>
-        <Text style={styles.forgotText}>Forgot Password?</Text>
-      </TouchableOpacity>
+      <View style={{ alignSelf: 'flex-end' }}>
+        <Pressable onPress={() => router.push("/forgotpass")}>
+          <Text style={styles.forgotText}>Forgot Password?</Text>
+        </Pressable>
+      </View>
 
       {/* Login Button */}
       <Pressable
@@ -108,7 +110,7 @@ function Login() {
         disabled={isLoading}
         style={({ pressed }) => [
           styles.loginBtn,
-          { backgroundColor: isLoading ? "#CCC" : (pressed ? "#E17203" : "#FE9A00") },
+          { backgroundColor: pressed && !isLoading ? "#E17203" : "#FE9A00" },
         ]}
       >
         {isLoading ? (
@@ -121,9 +123,7 @@ function Login() {
       {/* Sign Up link */}
       <Text style={styles.signupContainer}>
         You don’t have an account yet?{" "}
-        <Link href="/signup" asChild>
-          <Text style={styles.signupText}>Sign Up</Text>
-        </Link>
+        <Text style={styles.signupText} onPress={() => router.replace('/signup')}>Sign Up</Text>
       </Text>
     </View>
   );
@@ -233,3 +233,4 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
 });
+

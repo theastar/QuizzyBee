@@ -185,7 +185,7 @@ export default function AdminSettings() {
 
         {/* Change Password Button */}
         <TouchableOpacity
-          style={[styles.saveButton, isLoading && styles.saveButtonDisabled]}
+          style={styles.saveButton}
           onPress={handleChangePassword}
           disabled={isLoading}
         >
@@ -307,9 +307,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f59e0b',
     alignItems: 'center',
     marginTop: 8,
-  },
-  saveButtonDisabled: {
-    backgroundColor: '#CCC',
   },
   saveButtonText: {
     fontSize: 15,

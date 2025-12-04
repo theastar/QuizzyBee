@@ -167,7 +167,7 @@ function ForgotPass() {
             disabled={isLoading}
             style={({ pressed }) => [
               styles.actionBtn,
-              { backgroundColor: isLoading ? "#CCC" : (pressed ? "#E17203" : "#FE9A00") }
+              { backgroundColor: pressed && !isLoading ? "#E17203" : "#FE9A00" }
             ]}
           >
             {isLoading ? (
@@ -212,7 +212,7 @@ function ForgotPass() {
         disabled={isLoading}
         style={({ pressed }) => [
           styles.actionBtn,
-          { backgroundColor: isLoading ? "#CCC" : (pressed ? "#E17203" : "#FE9A00") }
+          { backgroundColor: pressed && !isLoading ? "#E17203" : "#FE9A00" }
         ]}
       >
         {isLoading ? (

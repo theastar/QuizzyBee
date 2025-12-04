@@ -1,7 +1,8 @@
 import { Stack } from "expo-router";
 import { NotesProvider } from "../context/NotesContext";
 import { FlashcardsProvider } from "../context/FlashcardsContext";
-import { CalendarProvider } from "../context/CalendarContext"; 
+import { CalendarProvider } from "../context/CalendarContext";
+import { useProtectedRoute } from "../hooks/useProtectedRoute";
 import {
   useFonts,
   Poppins_200ExtraLight,
@@ -23,6 +24,9 @@ function RootLayout() {
     Poppins_600SemiBold,
     Poppins_700Bold,
   });
+
+  // Protected route logic
+  useProtectedRoute();
 
   if (!fontsLoaded) {
     return (

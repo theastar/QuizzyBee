@@ -1,15 +1,23 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet, Animated } from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet, Animated, BackHandler } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 
 function Index() {
+  const router = useRouter();
   const logoAnim = useRef(new Animated.Value(80)).current; // start 80 below
   const subtitleFade = useRef(new Animated.Value(0)).current;
   const buttonsFade = useRef(new Animated.Value(0)).current;
   const footerFade = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    // Prevent back button navigation on splash screen
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      // Return true to prevent default back behavior
+      return true;
+    });
+
+    // Animation sequence
     Animated.sequence([
       Animated.timing(logoAnim, {
         toValue: 0,
@@ -32,6 +40,9 @@ function Index() {
         useNativeDriver: true,
       }),
     ]).start();
+
+    // Cleanup back handler on unmount
+    return () => backHandler.remove();
   }, []);
 
   return (
@@ -58,17 +69,13 @@ function Index() {
 
         {/* Buttons fade */}
         <Animated.View style={{ opacity: buttonsFade, width: "100%", alignItems: "center" }}>
-          <Link href="/login" asChild>
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>Login</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity style={styles.button} onPress={() => router.replace('/login')}>
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
 
-          <Link href="/signup" asChild>
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>Sign Up</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity style={styles.button} onPress={() => router.replace('/signup')}>
+            <Text style={styles.buttonText}>Sign Up</Text>
+          </TouchableOpacity>
         </Animated.View>
 
         {/* Footer fade */}

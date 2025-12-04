@@ -41,16 +41,7 @@ function EditProfile() {
         );
 
         if (result.success) {
-            Alert.alert(
-                "Success",
-                "Profile updated successfully!",
-                [
-                    {
-                        text: "OK",
-                        onPress: () => router.back()
-                    }
-                ]
-            );
+            router.back();
         } else {
             Alert.alert("Error", result.error || "Failed to update profile");
         }
@@ -130,7 +121,7 @@ function EditProfile() {
                 />
 
                 <TouchableOpacity
-                    style={[styles.saveBtn, isLoading && styles.saveBtnDisabled]}
+                    style={styles.saveBtn}
                     onPress={saveChanges}
                     disabled={isLoading}
                 >
@@ -202,9 +193,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#FF8927",
         borderRadius: 10,
         alignItems: "center",
-    },
-    saveBtnDisabled: {
-        backgroundColor: "#CCC",
     },
     saveText: {
         color: "#FFFBF0",

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Pressable, Image, StyleSheet, ScrollView, Alert, ActivityIndicator } from "react-native";
-import { useRouter, Link } from "expo-router";
+import { useRouter } from "expo-router";
 import BackButton from "../components/BackButton";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../context/AuthStore";
@@ -167,7 +167,7 @@ function SignUp() {
         <Pressable
           onPress={handleSignUp}
           disabled={isLoading}
-          style={({ pressed }) => [styles.actionBtn, { backgroundColor: isLoading ? "#CCC" : (pressed ? "#E17203" : "#FE9A00") }]}
+          style={({ pressed }) => [styles.actionBtn, { backgroundColor: pressed && !isLoading ? "#E17203" : "#FE9A00" }]}
         >
           {isLoading ? (
             <ActivityIndicator color="#FFFCD0" />
@@ -179,9 +179,7 @@ function SignUp() {
         {/* Link to Login */}
         <Text style={styles.signupContainer}>
           Already have an account?{" "}
-          <Link href="/login" asChild>
-            <Text style={styles.signupText}>Log In</Text>
-          </Link>
+          <Text style={styles.signupText} onPress={() => router.replace('/login')}>Log In</Text>
         </Text>
       </ScrollView>
     </View>
@@ -290,3 +288,5 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
 });
+
+
