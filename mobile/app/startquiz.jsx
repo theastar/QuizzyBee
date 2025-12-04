@@ -25,7 +25,7 @@ const StartQuiz = () => {
   };
 
   const handleComplete = (score, correct, wrong, total) => {
-    router.push({
+    router.replace({
       pathname: '/endquiz',
       params: {
         quiz: JSON.stringify(quiz),
@@ -137,10 +137,10 @@ const StartQuiz = () => {
 export default StartQuiz;
 
 const styles = StyleSheet.create({
-pageBackground: {
-  flex: 1,
-  backgroundColor: '#FFFBF0',
-},
+  pageBackground: {
+    flex: 1,
+    backgroundColor: '#FFFBF0',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
