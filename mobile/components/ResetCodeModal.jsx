@@ -1,11 +1,17 @@
 import React from "react";
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
-function ResetCodeModal({ visible, resetCode, onContinue }) {
+function ResetCodeModal({ visible, resetCode, onContinue, onClose }) {
     return (
         <Modal visible={visible} transparent animationType="fade">
             <View style={styles.overlay}>
                 <View style={styles.modalBox}>
+                    {/* Close Button */}
+                    <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
+                        <Ionicons name="close" size={24} color="#A25C30" />
+                    </TouchableOpacity>
+
                     <Text style={styles.title}>Reset Code Sent!</Text>
                     <Text style={styles.bodyText}>
                         Your password reset code is:
@@ -44,6 +50,14 @@ const styles = StyleSheet.create({
         borderColor: "#FDEBA1",
         padding: 24,
         width: 370,
+        position: "relative",
+    },
+    closeBtn: {
+        position: "absolute",
+        top: 12,
+        right: 12,
+        padding: 8,
+        zIndex: 10,
     },
     title: {
         fontFamily: "Poppins_600SemiBold",
@@ -51,6 +65,7 @@ const styles = StyleSheet.create({
         color: "#1A1D16",
         marginBottom: 12,
         textAlign: "center",
+        marginTop: 8,
     },
     bodyText: {
         fontFamily: "Poppins_400Regular",
