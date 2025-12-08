@@ -51,7 +51,6 @@ export default function AdminSettings() {
     const result = await changePassword(user._id, currentPassword, newPassword);
 
     if (result.success) {
-      Alert.alert("Success", "Password changed successfully!");
       setCurrentPassword('');
       setNewPassword('');
     } else {

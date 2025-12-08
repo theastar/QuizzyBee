@@ -101,10 +101,19 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
+        // Check if user is deactivated
+        if (user.status === 'deactivated') {
+            return res.status(403).json({ message: "Account has been deactivated. Please contact support." });
+        }
+
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
+
+        // Update last active timestamp
+        user.lastActive = new Date();
+        await user.save();
 
         const token = generateToken(user._id);
 
@@ -116,6 +125,7 @@ router.post("/login", async (req, res) => {
                 email: user.email,
                 studentId: user.studentId,
                 role: user.role,
+                status: user.status,
                 course: user.course,
                 year: user.year,
                 bio: user.bio,

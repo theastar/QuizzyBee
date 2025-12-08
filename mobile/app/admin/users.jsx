@@ -1,27 +1,42 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet,} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAdminStore } from '../../context/AdminStore';
 
 export default function AdminUsers() {
   const router = useRouter();
-  const { users } = useAdminStore();
+  const { users, loading, error, fetchUsers, clearError } = useAdminStore();
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Filter users (ALL users, no role check)
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.studentId.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
-  });
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  useEffect(() => {
+    // Debounce search
+    const timer = setTimeout(() => {
+      loadUsers();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const loadUsers = async () => {
+    try {
+      clearError();
+      await fetchUsers(searchQuery);
+    } catch (error) {
+      console.error('Load users error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to load users';
+      Alert.alert('Error Loading Users', errorMessage);
+    }
+  };
 
   const handleUserPress = (user) => {
     router.push({
       pathname: '/user-detail',
-      params: { userId: user.id }
+      params: { userId: user._id }
     });
   };
 
@@ -47,42 +62,66 @@ export default function AdminUsers() {
         {/* User Count */}
         <View style={styles.userCount}>
           <Text style={styles.userCountText}>
-            Showing {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''}
+            Showing {users.length} user{users.length !== 1 ? 's' : ''}
           </Text>
         </View>
 
-        {filteredUsers.map((user) => (
-          <TouchableOpacity
-            key={user.id}
-            style={[
-              styles.userCard,
-              user.status === 'deactivated' && styles.userCardDeactivated,
-            ]}
-            onPress={() => handleUserPress(user)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.userCardContent}>
-              <View style={styles.userNameRow}>
-                <Text style={styles.userName}>{user.name}</Text>
-
-                {user.status === 'deactivated' && (
-                  <View style={styles.deactivatedBadge}>
-                    <Text style={styles.deactivatedBadgeText}>Deactivated</Text>
-                  </View>
-                )}
-              </View>
-
-              <Text style={styles.userEmail}>{user.email}</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-
-        {filteredUsers.length === 0 && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>
-              No users found matching your search.
+        {loading ? (
+          <View style={{ marginTop: 50, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#f59e0b" />
+            <Text style={{ marginTop: 10, fontFamily: 'Poppins_400Regular', color: '#78350f' }}>
+              Loading users...
             </Text>
           </View>
+        ) : error ? (
+          <View style={styles.emptyState}>
+            <Ionicons name="alert-circle-outline" size={48} color="#dc2626" style={{ marginBottom: 10 }} />
+            <Text style={[styles.emptyStateText, { color: '#dc2626', fontFamily: 'Poppins_600SemiBold' }]}>
+              {error}
+            </Text>
+            <TouchableOpacity
+              style={{ marginTop: 15, paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#f59e0b', borderRadius: 8 }}
+              onPress={loadUsers}
+            >
+              <Text style={{ color: '#fff', fontFamily: 'Poppins_500Medium' }}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            {users.map((user) => (
+              <TouchableOpacity
+                key={user._id}
+                style={[
+                  styles.userCard,
+                  user.status === 'deactivated' && styles.userCardDeactivated,
+                ]}
+                onPress={() => handleUserPress(user)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.userCardContent}>
+                  <View style={styles.userNameRow}>
+                    <Text style={styles.userName}>{user.name}</Text>
+
+                    {user.status === 'deactivated' && (
+                      <View style={styles.deactivatedBadge}>
+                        <Text style={styles.deactivatedBadgeText}>Deactivated</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <Text style={styles.userEmail}>{user.email}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+
+            {users.length === 0 && !loading && !error && (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateText}>
+                  No users found matching your search.
+                </Text>
+              </View>
+            )}
+          </>
         )}
       </ScrollView>
     </View>
@@ -94,7 +133,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFBF0',
     paddingHorizontal: 20,
-    paddingTop: 40, 
+    paddingTop: 40,
   },
   searchCard: {
     backgroundColor: '#fff',

@@ -31,6 +31,11 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
+    status: {
+        type: String,
+        enum: ['active', 'deactivated'],
+        default: 'active'
+    },
     course: {
         type: String,
         default: "",
@@ -43,6 +48,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "",
     },
+    lastActive: {
+        type: Date,
+        default: Date.now
+    },
     resetPasswordToken: {
         type: String,
         default: null
@@ -52,7 +61,7 @@ const userSchema = new mongoose.Schema({
         default: null
     }
 
-});
+}, { timestamps: true });
 
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();

@@ -1,29 +1,48 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useAdminStore } from '../../context/AdminStore'; 
+import { useAdminStore } from '../../context/AdminStore';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { users } = useAdminStore();
+  const { stats, recentActivity, loading, error, fetchStats, fetchRecentActivity } = useAdminStore();
 
-  // Calculate system stats
-  const totalUsers = users.filter(u => u.status === 'active').length;
-  const totalQuizzes = users.reduce((sum, user) => sum + user.quizzesCreated, 0);
-  const totalFlashcards = users.reduce((sum, user) => sum + user.flashcardsCreated, 0);
-  const totalNotes = users.reduce((sum, user) => sum + user.notesCreated, 0);
+  useEffect(() => {
+    loadData();
+  }, []);
 
-  // Get recent login activity
-  const recentUsers = users
-    .filter(u => u.status === 'active')
-    .slice(0, 4); 
+  const loadData = async () => {
+    try {
+      await Promise.all([
+        fetchStats(),
+        fetchRecentActivity(4)
+      ]);
+    } catch (error) {
+      Alert.alert('Error', error.response?.data?.message || 'Failed to load dashboard data');
+    }
+  };
+
+  const getRelativeTime = (timestamp) => {
+    const now = new Date();
+    const past = new Date(timestamp);
+    const diffMs = now - past;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return past.toLocaleDateString();
+  };
 
   const handleUserPress = (user) => {
     router.push({
       pathname: '/user-detail',
-      params: { userId: user.id }
+      params: { userId: user._id }
     });
   };
 
@@ -34,108 +53,127 @@ export default function AdminDashboard() {
         <Text style={styles.greetingText}>Hello, Admin!</Text>
       </View>
 
-      {/* Stats Grid */}
-      <View style={styles.statsGrid}>
-        {/* Total Users Card */}
-        <LinearGradient colors={['#fbbf24', '#f59e0b', '#ea580c']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.statCard}>
-          <View style={styles.statCardContent}>
-            <View style={styles.statHeader}>
-              <View>
-                <Text style={styles.statLabel}>TOTAL USERS</Text>
-                <View style={styles.statValueRow}>
-                  <Text style={styles.statValue}>{totalUsers}</Text>
-                  <View style={styles.liveBadge}>
-                    <Text style={styles.liveBadgeText}>Active</Text>
-                  </View>
-                </View>
-              </View>
-              <View style={styles.statIcon}>
-                <MaterialCommunityIcons name="account-multiple-outline" size={30} color="#fff" />
-              </View>
-            </View>
-          </View>
-        </LinearGradient>
-
-        {/* Total Quizzes Card */}
-        <LinearGradient colors={['#fb923c', '#f97316', '#dc2626']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.statCard}>
-          <View style={styles.statCardContent}>
-            <View style={styles.statHeader}>
-              <View>
-                <Text style={styles.statLabel}>TOTAL QUIZZES</Text>
-                <View style={styles.statValueRow}>
-                  <Text style={styles.statValue}>{totalQuizzes}</Text>
-                  <View style={styles.liveBadge}>
-                    <Text style={styles.liveBadgeText}>Published</Text>
-                  </View>
-                </View>
-              </View>
-              <View style={styles.statIcon}>
-                <MaterialCommunityIcons name="file-document-edit-outline" size={30} color="#fff" />
-              </View>
-            </View>
-          </View>
-        </LinearGradient>
-
-        {/* Total Flashcards Card */}
-        <LinearGradient colors={['#facc15', '#eab308', '#f59e0b']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.statCard}>
-          <View style={styles.statCardContent}>
-            <View style={styles.statHeader}>
-              <View>
-                <Text style={styles.statLabel}>TOTAL FLASHCARDS</Text>
-                <View style={styles.statValueRow}>
-                  <Text style={styles.statValue}>{totalFlashcards}</Text>
-                  <View style={styles.liveBadge}>
-                    <Text style={styles.liveBadgeText}>Created</Text>
-                  </View>
-                </View>
-              </View>
-              <View style={styles.statIcon}>
-                <MaterialCommunityIcons name="cards-outline" size={27} color="#fff" />
-              </View>
-            </View>
-          </View>
-        </LinearGradient>
-
-        {/* Total Notes Card */}
-        <LinearGradient colors={['#fbbf24', '#eab308', '#d97706']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.statCard}>
-          <View style={styles.statCardContent}>
-            <View style={styles.statHeader}>
-              <View>
-                <Text style={styles.statLabel}>TOTAL NOTES</Text>
-                <View style={styles.statValueRow}>
-                  <Text style={styles.statValue}>{totalNotes}</Text>
-                  <View style={styles.liveBadge}>
-                    <Text style={styles.liveBadgeText}>Saved</Text>
-                  </View>
-                </View>
-              </View>
-              <View style={styles.statIcon}>
-                <MaterialCommunityIcons name="pencil-outline" size={30} color="#fff" />
-              </View>
-            </View>
-          </View>
-        </LinearGradient>
-      </View>
-
-      {/* Recent Login Activity */}
-      <View style={styles.activityCard}>
-        <View style={styles.activityHeader}>
-          <Text style={styles.activityTitle}>Recent Login Activity</Text>
+      {loading ? (
+        <View style={{ marginTop: 50, alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#f59e0b" />
+          <Text style={{ marginTop: 10, fontFamily: 'Poppins_400Regular', color: '#78350f' }}>
+            Loading dashboard...
+          </Text>
         </View>
-        <View style={styles.activityList}>
-          {recentUsers.map((user) => (
-            <TouchableOpacity key={user.id} style={styles.activityItem} onPress={() => handleUserPress(user)} activeOpacity={0.7}>
-              <View style={styles.activityItemLeft}>
-                <View>
-                  <Text style={styles.activityItemNameText}>{user.name}</Text>
-                  <Text style={styles.activityItemEmail}>{user.email}</Text>
+      ) : (
+        <>
+          {/* Stats Grid */}
+          <View style={styles.statsGrid}>
+            {/* Total Users Card */}
+            <LinearGradient colors={['#fbbf24', '#f59e0b', '#ea580c']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.statCard}>
+              <View style={styles.statCardContent}>
+                <View style={styles.statHeader}>
+                  <View>
+                    <Text style={styles.statLabel}>TOTAL USERS</Text>
+                    <View style={styles.statValueRow}>
+                      <Text style={styles.statValue}>{stats.totalUsers}</Text>
+                      <View style={styles.liveBadge}>
+                        <Text style={styles.liveBadgeText}>Active</Text>
+                      </View>
+                    </View>
+                  </View>
+                  <View style={styles.statIcon}>
+                    <MaterialCommunityIcons name="account-multiple-outline" size={30} color="#fff" />
+                  </View>
                 </View>
               </View>
-              <Text style={styles.activityItemTime}>{user.lastActive}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+            </LinearGradient>
+
+            {/* Total Quizzes Card */}
+            <LinearGradient colors={['#fb923c', '#f97316', '#dc2626']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.statCard}>
+              <View style={styles.statCardContent}>
+                <View style={styles.statHeader}>
+                  <View>
+                    <Text style={styles.statLabel}>TOTAL QUIZZES</Text>
+                    <View style={styles.statValueRow}>
+                      <Text style={styles.statValue}>{stats.totalQuizzes}</Text>
+                      <View style={styles.liveBadge}>
+                        <Text style={styles.liveBadgeText}>Published</Text>
+                      </View>
+                    </View>
+                  </View>
+                  <View style={styles.statIcon}>
+                    <MaterialCommunityIcons name="file-document-edit-outline" size={30} color="#fff" />
+                  </View>
+                </View>
+              </View>
+            </LinearGradient>
+
+            {/* Total Flashcards Card */}
+            <LinearGradient colors={['#facc15', '#eab308', '#f59e0b']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.statCard}>
+              <View style={styles.statCardContent}>
+                <View style={styles.statHeader}>
+                  <View>
+                    <Text style={styles.statLabel}>TOTAL FLASHCARDS</Text>
+                    <View style={styles.statValueRow}>
+                      <Text style={styles.statValue}>{stats.totalFlashcards}</Text>
+                      <View style={styles.liveBadge}>
+                        <Text style={styles.liveBadgeText}>Created</Text>
+                      </View>
+                    </View>
+                  </View>
+                  <View style={styles.statIcon}>
+                    <MaterialCommunityIcons name="cards-outline" size={27} color="#fff" />
+                  </View>
+                </View>
+              </View>
+            </LinearGradient>
+
+            {/* Total Notes Card */}
+            <LinearGradient colors={['#fbbf24', '#eab308', '#d97706']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.statCard}>
+              <View style={styles.statCardContent}>
+                <View style={styles.statHeader}>
+                  <View>
+                    <Text style={styles.statLabel}>TOTAL NOTES</Text>
+                    <View style={styles.statValueRow}>
+                      <Text style={styles.statValue}>{stats.totalNotes}</Text>
+                      <View style={styles.liveBadge}>
+                        <Text style={styles.liveBadgeText}>Saved</Text>
+                      </View>
+                    </View>
+                  </View>
+                  <View style={styles.statIcon}>
+                    <MaterialCommunityIcons name="pencil-outline" size={30} color="#fff" />
+                  </View>
+                </View>
+              </View>
+            </LinearGradient>
+          </View>
+
+          {/* Recent Login Activity */}
+          <View style={styles.activityCard}>
+            <View style={styles.activityHeader}>
+              <Text style={styles.activityTitle}>Recent Login Activity</Text>
+            </View>
+            <View style={styles.activityList}>
+              {recentActivity.length > 0 ? (
+                recentActivity.map((user) => (
+                  <TouchableOpacity key={user._id} style={styles.activityItem} onPress={() => handleUserPress(user)} activeOpacity={0.7}>
+                    <View style={styles.activityItemLeft}>
+                      <View>
+                        <Text style={styles.activityItemNameText}>{user.name}</Text>
+                        <Text style={styles.activityItemEmail}>{user.email}</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.activityItemTime}>
+                      {user.lastActive ? getRelativeTime(user.lastActive) : 'N/A'}
+                    </Text>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <Text style={{ fontFamily: 'Poppins_400Regular', color: '#6b7280', textAlign: 'center' }}>
+                  No recent activity
+                </Text>
+              )}
+            </View>
+          </View>
+        </>
+      )}
     </ScrollView>
   );
 }

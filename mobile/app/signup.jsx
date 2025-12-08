@@ -17,7 +17,6 @@ function SignUp() {
   const { register, isLoading, clearError, logout } = useAuthStore();
 
   const handleSignUp = async () => {
-    // Clear previous errors
     clearError();
 
     // Validation
@@ -45,22 +44,10 @@ function SignUp() {
     const result = await register(name, studentId, email, password);
 
     if (result.success) {
-      // Show success message
-      Alert.alert(
-        "Success!",
-        "Account created successfully! Please log in.",
-        [
-          {
-            text: "OK",
-            onPress: () => {
-              // Logout to clear the auth state so user has to login
-              logout();
-              // Navigate to login page
-              router.replace("/login");
-            }
-          }
-        ]
-      );
+      // Logout to clear the auth state so user has to login
+      logout();
+      // Navigate to login page
+      router.replace("/login");
     } else {
       // Show error alert
       Alert.alert("Registration Failed", result.error);
@@ -288,5 +275,3 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
 });
-
-

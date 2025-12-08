@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import BackButton from "../components/BackButton";
 import { authAPI } from "../services/api";
+import ResetCodeModal from "../components/ResetCodeModal";
 
 function ForgotPass() {
   const router = useRouter();
@@ -15,6 +16,8 @@ function ForgotPass() {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
+  const [showCodeModal, setShowCodeModal] = useState(false);
+  const [displayResetCode, setDisplayResetCode] = useState("");
 
   const handleSendResetCode = async () => {
     if (!email) {
@@ -33,17 +36,9 @@ function ForgotPass() {
     try {
       const response = await authAPI.forgotPassword(email);
 
-      // Show the reset code (in production, this would be sent via email)
-      Alert.alert(
-        "Reset Code Sent",
-        `Your reset code is: ${response.resetToken}\n\nIn a real app, this would be sent to your email.`,
-        [
-          {
-            text: "OK",
-            onPress: () => setStep(2)
-          }
-        ]
-      );
+      // Show the reset code in modal
+      setDisplayResetCode(response.resetToken);
+      setShowCodeModal(true);
     } catch (error) {
       console.log("Forgot password error:", error);
       Alert.alert(
@@ -94,6 +89,11 @@ function ForgotPass() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleModalContinue = () => {
+    setShowCodeModal(false);
+    setStep(2);
   };
 
   // Step 2: Enter reset code and new password
@@ -221,6 +221,13 @@ function ForgotPass() {
           <Text style={styles.actionBtnText}>Send Reset Code</Text>
         )}
       </Pressable>
+
+      {/* Reset Code Modal */}
+      <ResetCodeModal
+        visible={showCodeModal}
+        resetCode={displayResetCode}
+        onContinue={handleModalContinue}
+      />
     </View>
   );
 }

@@ -1,130 +1,186 @@
 import { create } from 'zustand';
+import adminAPI from '../services/adminApi';
 
-// Mock data for users
-const initialMockUsers = [
-  {
-    id: '1',
-    name: 'Elphaba Thropp',
-    email: 'greengal@gmail.com',
-    studentId: '2023341290',
-    status: 'active',
-    joinedDate: 'Jan 15, 2025',
-    lastActive: '10m ago',
-    quizzesCreated: 5,
-    flashcardsCreated: 7,
-    notesCreated: 2,
+export const useAdminStore = create((set, get) => ({
+  users: [],
+  stats: {
+    totalUsers: 0,
+    totalAdmins: 0,
+    deactivatedUsers: 0,
+    totalQuizzes: 0,
+    totalFlashcards: 0,
+    totalNotes: 0
   },
-  {
-    id: '2',
-    name: 'Althea Navales',
-    email: 'navales.althea001@gmail.com',
-    studentId: '2023341291',
-    status: 'active',
-    joinedDate: 'Jan 20, 2025',
-    lastActive: '18m ago',
-    quizzesCreated: 8,
-    flashcardsCreated: 5,
-    notesCreated: 12,
-  },
-  {
-    id: '3',
-    name: 'Rogin Lagrosas',
-    email: 'lagrosas.rogin1@gmail.com',
-    studentId: '2023341292',
-    status: 'active',
-    joinedDate: 'Jan 22, 2025',
-    lastActive: '1h ago',
-    quizzesCreated: 15,
-    flashcardsCreated: 10,
-    notesCreated: 8,
-  },
-  {
-    id: '4',
-    name: 'Galinda Upland',
-    email: 'glindaglow@gmail.com',
-    studentId: '2023341293',
-    status: 'active',
-    joinedDate: 'Jan 18, 2025',
-    lastActive: '3h ago',
-    quizzesCreated: 0,
-    flashcardsCreated: 0,
-    notesCreated: 0,
-  },
-  {
-    id: '5',
-    name: 'Dorothy Gale',
-    email: 'overtherainbow@gmail.com',
-    studentId: '2023341294',
-    status: 'active',
-    joinedDate: 'Jan 10, 2025',
-    lastActive: '2 weeks ago',
-    quizzesCreated: 3,
-    flashcardsCreated: 2,
-    notesCreated: 1,
-  },
-  {
-    id: '6',
-    name: 'Fiyero Tigelaar',
-    email: 'emeraldbae@gmail.com',
-    studentId: '2023341295',
-    status: 'active',
-    joinedDate: 'Feb 1, 2025',
-    lastActive: '3 days ago',
-    quizzesCreated: 5,
-    flashcardsCreated: 7,
-    notesCreated: 9,
-  },
-  {
-    id: '7',
-    name: 'Boq Woodsman',
-    email: 'heartlessboq@gmail.com',
-    studentId: '2023341296',
-    status: 'active',
-    joinedDate: 'Feb 5, 2025',
-    lastActive: '2 days ago',
-    quizzesCreated: 10,
-    flashcardsCreated: 6,
-    notesCreated: 4,
-  },
-  {
-    id: '8',
-    name: 'Nessarose Thropp',
-    email: 'rubyheels@gmail.com',
-    studentId: '2023341297',
-    status: 'active',
-    joinedDate: 'Feb 7, 2025',
-    lastActive: '1 day ago',
-    quizzesCreated: 7,
-    flashcardsCreated: 4,
-    notesCreated: 3,
-  },
-];
+  recentActivity: [],
+  loading: false,
+  error: null,
 
-export const useAdminStore = create((set) => ({
-  users: initialMockUsers,
-  currentUserId: '1', // You can keep this as the first user for now
-  
+  // Fetch dashboard statistics
+  fetchStats: async () => {
+    try {
+      set({ loading: true, error: null });
+      const stats = await adminAPI.getStats();
+      set({ stats, loading: false });
+      return stats;
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+      set({
+        error: error.response?.data?.message || 'Failed to fetch statistics',
+        loading: false
+      });
+      throw error;
+    }
+  },
+
+  // Fetch all users
+  fetchUsers: async (search = '', status = '', role = '') => {
+    try {
+      set({ loading: true, error: null });
+      const data = await adminAPI.getUsers(search, status, role);
+      set({ users: data.users, loading: false });
+      return data;
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      set({
+        error: error.response?.data?.message || 'Failed to fetch users',
+        loading: false
+      });
+      throw error;
+    }
+  },
+
+  // Fetch user by ID
+  fetchUserById: async (userId) => {
+    try {
+      set({ loading: true, error: null });
+      const data = await adminAPI.getUserById(userId);
+      set({ loading: false });
+      return data.user;
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      set({
+        error: error.response?.data?.message || 'Failed to fetch user details',
+        loading: false
+      });
+      throw error;
+    }
+  },
+
   // Update user
-  updateUser: (userId, updates) =>
-    set((state) => ({
-      users: state.users.map((user) =>
-        user.id === userId ? { ...user, ...updates } : user
-      ),
-    })),
-  
+  updateUser: async (userId, updates) => {
+    try {
+      set({ loading: true, error: null });
+      const data = await adminAPI.updateUser(userId, updates);
+
+      // Update user in local state
+      set((state) => ({
+        users: state.users.map((user) =>
+          user._id === userId ? data.user : user
+        ),
+        loading: false
+      }));
+
+      return data;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      set({
+        error: error.response?.data?.message || 'Failed to update user',
+        loading: false
+      });
+      throw error;
+    }
+  },
+
+  // Deactivate user
+  deactivateUser: async (userId) => {
+    try {
+      set({ loading: true, error: null });
+      const data = await adminAPI.deactivateUser(userId);
+
+      // Update user status in local state
+      set((state) => ({
+        users: state.users.map((user) =>
+          user._id === userId ? { ...user, status: 'deactivated' } : user
+        ),
+        loading: false
+      }));
+
+      return data;
+    } catch (error) {
+      console.error('Error deactivating user:', error);
+      set({
+        error: error.response?.data?.message || 'Failed to deactivate user',
+        loading: false
+      });
+      throw error;
+    }
+  },
+
+  // Activate user
+  activateUser: async (userId) => {
+    try {
+      set({ loading: true, error: null });
+      const data = await adminAPI.activateUser(userId);
+
+      // Update user status in local state
+      set((state) => ({
+        users: state.users.map((user) =>
+          user._id === userId ? { ...user, status: 'active' } : user
+        ),
+        loading: false
+      }));
+
+      return data;
+    } catch (error) {
+      console.error('Error activating user:', error);
+      set({
+        error: error.response?.data?.message || 'Failed to activate user',
+        loading: false
+      });
+      throw error;
+    }
+  },
+
   // Delete user
-  deleteUser: (userId) =>
-    set((state) => ({
-      users: state.users.filter((user) => user.id !== userId),
-    })),
-  
-  // Add user
-  addUser: (user) =>
-    set((state) => ({
-      users: [...state.users, user],
-    })),
-  
-  // Set current user ID
-  setCurrentUserId: (userId) =>
-    set({ currentUserId: userId }),
+  deleteUser: async (userId) => {
+    try {
+      set({ loading: true, error: null });
+      await adminAPI.deleteUser(userId);
+
+      // Remove user from local state
+      set((state) => ({
+        users: state.users.filter((user) => user._id !== userId),
+        loading: false
+      }));
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      set({
+        error: error.response?.data?.message || 'Failed to delete user',
+        loading: false
+      });
+      throw error;
+    }
+  },
+
+  // Fetch recent activity
+  fetchRecentActivity: async (limit = 10) => {
+    try {
+      set({ loading: true, error: null });
+      const data = await adminAPI.getRecentActivity(limit);
+      set({ recentActivity: data.users, loading: false });
+      return data;
+    } catch (error) {
+      console.error('Error fetching recent activity:', error);
+      set({
+        error: error.response?.data?.message || 'Failed to fetch recent activity',
+        loading: false
+      });
+      throw error;
+    }
+  },
+
+  // Clear error
+  clearError: () => set({ error: null }),
 }));
