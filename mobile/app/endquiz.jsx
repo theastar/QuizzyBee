@@ -23,7 +23,7 @@ const EndQuiz = () => {
   }, []);
 
   const handleReturn = () => {
-    router.back();
+    router.push('/tabs/quizzybee');
   };
 
   return (

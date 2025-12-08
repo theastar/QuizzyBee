@@ -151,4 +151,42 @@ export const flashcardAPI = {
   },
 };
 
+export const quizAPI = {
+  getQuizzes: async (userId) => {
+    const response = await api.get(`/quizzes/quizzes/${userId}`);
+    return response.data;
+  },
+
+  getQuiz: async (quizId) => {
+    const response = await api.get(`/quizzes/quizzes/single/${quizId}`);
+    return response.data;
+  },
+
+  createQuiz: async (userId, title, questions) => {
+    const response = await api.post('/quizzes/quizzes', {
+      userId,
+      title,
+      questions,
+    });
+    return response.data;
+  },
+
+  updateQuiz: async (quizId, userId, title, questions, completed) => {
+    const response = await api.put(`/quizzes/quizzes/${quizId}`, {
+      userId,
+      title,
+      questions,
+      completed,
+    });
+    return response.data;
+  },
+
+  deleteQuiz: async (quizId, userId) => {
+    const response = await api.delete(`/quizzes/quizzes/${quizId}`, {
+      data: { userId }
+    });
+    return response.data;
+  },
+};
+
 export default api;

@@ -70,7 +70,7 @@ const StartQuiz = () => {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.backButtonWrapper}>
-          <BackButton />
+          <BackButton fallbackRoute="/tabs/quizzybee" />
         </View>
       </View>
 

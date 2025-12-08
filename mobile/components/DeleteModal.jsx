@@ -2,12 +2,12 @@ import React from "react";
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 // Modal to confirm deletion
-function DeleteModal({ visible, onConfirm, onCancel }) {
+function DeleteModal({ visible, onConfirm, onCancel, message }) {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.modalBox}>
-          <Text style={styles.title}>Are you sure you want to delete?</Text>
+          <Text style={styles.title}>{message || "Are you sure you want to delete?"}</Text>
           <View style={styles.row}>
             <TouchableOpacity style={styles.noBtn} onPress={onCancel}>
               <Text style={styles.noText}>No</Text>
@@ -27,7 +27,7 @@ export default DeleteModal;
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.14)",
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center"
   },
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#FDEBA1",
     padding: 20,
-    minWidth: 260,
+    width: 300,
   },
   title: {
     fontFamily: "Poppins_600SemiBold",

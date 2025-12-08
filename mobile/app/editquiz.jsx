@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import BackButton from '../components/BackButton';
+import { QuizContext } from '../context/QuizContext';
 
 const EditQuiz = () => {
   const params = useLocalSearchParams();
   const router = useRouter();
+  const { updateQuiz } = useContext(QuizContext);
 
   const quizParam = useMemo(() => {
     return params.quiz ? JSON.parse(params.quiz) : null;
@@ -14,6 +16,7 @@ const EditQuiz = () => {
 
   const [quizTitle, setQuizTitle] = useState('');
   const [questions, setQuestions] = useState([]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (quizParam) {
@@ -50,30 +53,38 @@ const EditQuiz = () => {
     setQuestions(updated);
   };
 
-  const handleUpdate = () => {
-    if (!quizTitle.trim()) return;
+  const handleUpdate = async () => {
+    if (!quizTitle.trim()) {
+      alert('Please enter a quiz title');
+      return;
+    }
 
     const validQuestions = questions.filter(q =>
       q.question.trim() && q.options.every(o => o.trim())
     );
 
-    if (validQuestions.length === 0) return;
+    if (validQuestions.length === 0) {
+      alert('Please add at least one complete question with all options');
+      return;
+    }
 
-    const updatedQuiz = {
-      id: quizParam?.id || Date.now(),
-      title: quizTitle,
-      questions,
-      completed: quizParam?.completed || false,
-    };
-
-    router.push({ pathname: '/tabs/quizzybee', params: { updatedQuiz: JSON.stringify(updatedQuiz) } });
+    try {
+      setSaving(true);
+      await updateQuiz(quizParam._id, quizTitle, validQuestions, quizParam.completed);
+      router.push('/tabs/quizzybee');
+    } catch (error) {
+      console.error('Error updating quiz:', error);
+      alert('Failed to update quiz. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <View style={styles.overlay}>
       <View style={styles.modalContainer}>
         <View style={styles.backButtonWrapper}>
-          <BackButton />
+          <BackButton fallbackRoute="/tabs/quizzybee" />
         </View>
         <ScrollView
           style={styles.scrollView}

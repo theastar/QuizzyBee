@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import BackButton from '../components/BackButton';
+import { QuizContext } from '../context/QuizContext';
 
 export default function CreateQuizPage() {
   const router = useRouter();
+  const { addQuiz } = useContext(QuizContext);
   const [quizTitle, setQuizTitle] = useState('');
   const [questions, setQuestions] = useState([
     { question: '', options: ['', '', '', ''], correct: 0 }
   ]);
+  const [saving, setSaving] = useState(false);
 
   const addQuestion = () => {
     setQuestions([...questions, { question: '', options: ['', '', '', ''], correct: 0 }]);
@@ -38,30 +41,38 @@ export default function CreateQuizPage() {
     setQuestions(updated);
   };
 
-  const handleCreate = () => {
-    if (!quizTitle.trim()) return;
+  const handleCreate = async () => {
+    if (!quizTitle.trim()) {
+      alert('Please enter a quiz title');
+      return;
+    }
 
     const validQuestions = questions.filter(q =>
       q.question.trim() && q.options.every(o => o.trim())
     );
-    if (validQuestions.length === 0) return;
 
-    router.replace({
-      pathname: '/tabs/quizzybee',
-      params: {
-        newQuiz: JSON.stringify({
-          title: quizTitle,
-          questions: validQuestions,
-        }),
-      },
-    });
+    if (validQuestions.length === 0) {
+      alert('Please add at least one complete question with all options');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      await addQuiz(quizTitle, validQuestions);
+      router.push('/tabs/quizzybee');
+    } catch (error) {
+      console.error('Error creating quiz:', error);
+      alert('Failed to create quiz. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.pageContainer}>
         <View style={styles.header}>
-          <BackButton />
+          <BackButton fallbackRoute="/tabs/quizzybee" />
         </View>
         <Text style={styles.pageTitle}>Create New Quiz</Text>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -142,7 +153,7 @@ export default function CreateQuizPage() {
           </TouchableOpacity>
         </ScrollView>
       </View>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 }
 

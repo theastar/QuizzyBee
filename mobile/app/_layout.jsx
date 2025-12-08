@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import { NotesProvider } from "../context/NotesContext";
 import { FlashcardsProvider } from "../context/FlashcardsContext";
 import { CalendarProvider } from "../context/CalendarContext";
+import { QuizProvider } from "../context/QuizContext";
 import { useProtectedRoute } from "../hooks/useProtectedRoute";
 import {
   useFonts,
@@ -41,16 +42,18 @@ function RootLayout() {
       <NotesProvider>
         <FlashcardsProvider>
           <CalendarProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                animation: "fade",
-                animationDuration: 200,
-                contentStyle: {
-                  backgroundColor: "#FFFBF0",
-                },
-              }}
-            />
+            <QuizProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: "fade",
+                  animationDuration: 200,
+                  contentStyle: {
+                    backgroundColor: "#FFFBF0",
+                  },
+                }}
+              />
+            </QuizProvider>
           </CalendarProvider>
         </FlashcardsProvider>
       </NotesProvider>
