@@ -227,6 +227,7 @@ function ForgotPass() {
         visible={showCodeModal}
         resetCode={displayResetCode}
         onContinue={handleModalContinue}
+        onClose={() => setShowCodeModal(false)} 
       />
     </View>
   );

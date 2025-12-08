@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, Image, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, Pressable, Image, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import BackButton from "../components/BackButton";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,16 +9,18 @@ function Login() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
-  const { login, isLoading, error, clearError } = useAuthStore();
+  const { login, isLoading, clearError } = useAuthStore();
 
   const handleLogin = async () => {
     // Clear previous errors
     clearError();
+    setErrorMessage("");
 
     // Validation
     if (!email || !password) {
-      Alert.alert("Error", "Please fill in all fields");
+      setErrorMessage("Please fill in all fields");
       return;
     }
 
@@ -36,8 +38,8 @@ function Login() {
         router.replace("/tabs/home");
       }
     } else {
-      // Show error alert
-      Alert.alert("Login Failed", result.error);
+      // Show inline error message
+      setErrorMessage(result.error || "Invalid email or password");
     }
   };
 
@@ -58,15 +60,26 @@ function Login() {
       <Text style={styles.title}>Welcome Back!</Text>
       <Text style={styles.subtitle}>Login to continue studying</Text>
 
+      {/* Error Message */}
+      {errorMessage ? (
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle" size={20} color="#c2410c" />
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        </View>
+      ) : null}
+
       {/* Inputs */}
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, errorMessage && styles.inputError]}
           placeholder="Enter your email"
           placeholderTextColor="#A25C30"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(text) => {
+            setEmail(text);
+            setErrorMessage("");
+          }}
           keyboardType="email-address"
           autoCapitalize="none"
           editable={!isLoading}
@@ -77,12 +90,15 @@ function Login() {
         <Text style={styles.label}>Password</Text>
         <View style={styles.inputIconWrapper}>
           <TextInput
-            style={[styles.input, { paddingRight: 40 }]}
+            style={[styles.input, { paddingRight: 40 }, errorMessage && styles.inputError]}
             placeholder="Enter your password"
             placeholderTextColor="#A25C30"
             secureTextEntry={!passwordVisible}
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(text) => {
+              setPassword(text);
+              setErrorMessage("");
+            }}
             editable={!isLoading}
           />
           <TouchableOpacity
@@ -122,7 +138,7 @@ function Login() {
 
       {/* Sign Up link */}
       <Text style={styles.signupContainer}>
-        You don’t have an account yet?{" "}
+        You don't have an account yet?{" "}
         <Text style={styles.signupText} onPress={() => router.replace('/signup')}>Sign Up</Text>
       </Text>
     </View>
@@ -162,7 +178,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#A25C30",
     fontFamily: "Poppins_400Regular",
-    marginBottom: 50,
+    marginBottom: 20,
+  },
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ffedd5",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: "#c2410c",
+  },
+  errorText: {
+    color: "#c2410c",
+    fontSize: 14,
+    fontFamily: "Poppins_500Medium",
+    marginLeft: 8,
+    flex: 1,
   },
   inputContainer: {
     marginBottom: 16,
@@ -190,6 +223,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#1A1D16",
     fontFamily: "Poppins_300Light",
+  },
+  inputError: {
+    borderColor: "#c2410c",
   },
   iconBtn: {
     position: "absolute",
@@ -233,4 +269,3 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
 });
-
