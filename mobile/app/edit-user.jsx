@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAdminStore } from '../context/AdminStore';
 import BackButton from '../components/BackButton';
@@ -7,33 +7,63 @@ import BackButton from '../components/BackButton';
 export default function EditUser() {
   const router = useRouter();
   const { userId } = useLocalSearchParams();
-  const { users, updateUser } = useAdminStore();
-  
-  const user = users.find(u => u.id === userId);
-  
-  const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [studentId, setStudentId] = useState(user?.studentId || '');
+  const { fetchUserById, updateUser, loading } = useAdminStore();
 
-  if (!user) {
+  const [user, setUser] = useState(null);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [studentId, setStudentId] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadUser();
+  }, [userId]);
+
+  const loadUser = async () => {
+    try {
+      const userData = await fetchUserById(userId);
+      setUser(userData);
+      setName(userData.name || '');
+      setEmail(userData.email || '');
+      setStudentId(userData.studentId || '');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to load user details');
+      router.back();
+    }
+  };
+
+  const handleSave = async () => {
+    if (!name.trim() || !email.trim()) {
+      Alert.alert('Validation Error', 'Name and email are required');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      await updateUser(user._id, {
+        name: name.trim(),
+        email: email.trim(),
+        studentId: studentId.trim() || undefined,
+      });
+
+      router.back();
+    } catch (error) {
+      Alert.alert('Error', error.response?.data?.message || 'Failed to update user');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading || !user) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>User not found</Text>
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#f59e0b" />
+        <Text style={{ marginTop: 10, fontFamily: 'Poppins_400Regular', color: '#78350f' }}>
+          Loading user details...
+        </Text>
       </View>
     );
   }
-
-  const handleSave = () => {
-    if (!name.trim() || !email.trim() || !studentId.trim()) return;
-
-    updateUser(user.id, {
-      name: name.trim(),
-      email: email.trim(),
-      studentId: studentId.trim(),
-    });
-
-    router.back();
-  };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -83,8 +113,16 @@ export default function EditUser() {
         </View>
 
         {/* Save Button */}
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save Changes</Text>
+        <TouchableOpacity
+          style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+          onPress={handleSave}
+          disabled={saving}
+        >
+          {saving ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.saveButtonText}>Save Changes</Text>
+          )}
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -101,19 +139,13 @@ const styles = StyleSheet.create({
   topContainer: {
     marginBottom: 20,
   },
-  errorText: {
-    fontSize: 16,
-    color: '#dc2626',
-    textAlign: 'center',
-    marginTop: 40,
-  },
   editCard: {
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 18,
     borderWidth: 1,
     borderColor: '#FDEBA1',
-    marginBottom: 20,
+    marginBottom: 40,
     marginTop: -2,
   },
   headerText: {
@@ -148,7 +180,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f59e0b',
     alignItems: 'center',
     marginTop: 8,
-    paddingVertical: 12,
+    paddingVertical: 14,
+  },
+  saveButtonDisabled: {
+    opacity: 0.6,
   },
   saveButtonText: {
     fontSize: 15,

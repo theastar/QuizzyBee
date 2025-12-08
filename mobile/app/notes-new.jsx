@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { NotesContext } from "../context/NotesContext";
 import BackButton from "../components/BackButton"; 
@@ -24,14 +24,22 @@ function NewNote() {
   }
 
   return (
-    <View style={styles.page}>
+    <KeyboardAvoidingView 
+      style={styles.page} 
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       {/* Back button row */}
       <View style={styles.backBtnArea}>
         <BackButton />
       </View>
 
-      {/* Content container */}
-      <View style={styles.contentContainer}>
+      {/* Scrollable Content */}
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.label}>Title</Text>
         <TextInput
           style={styles.input}
@@ -56,27 +64,36 @@ function NewNote() {
           multiline
           value={content}
           onChangeText={setContent}
+          textAlignVertical="top"
         />
         <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
           <Text style={styles.saveBtnText}>Save</Text>
         </TouchableOpacity>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 export default NewNote;
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: "#FFFBF0", padding: 18 },
+  page: { 
+    flex: 1, 
+    backgroundColor: "#FFFBF0", 
+  },
   backBtnArea: {
     position: "absolute",
     top: 29,
     left: 20,
     zIndex: 10,
   },
+  scrollView: {
+    flex: 1,
+  },
   contentContainer: {
-    paddingTop: 80, 
+    paddingTop: 80,
+    paddingHorizontal: 18,
+    paddingBottom: 40,
   },
   label: {
     fontFamily: "Poppins_600SemiBold",
@@ -96,7 +113,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   multiline: {
-    minHeight: 56,
+    minHeight: 200,
     fontFamily: "Poppins_400Regular",
   },
   saveBtn: {
@@ -104,7 +121,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     paddingVertical: 10,
-    marginTop: 320,
+    marginTop: 24,
   },
   saveBtnText: {
     fontFamily: "Poppins_600SemiBold",

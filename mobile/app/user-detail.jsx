@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAdminStore } from '../context/AdminStore';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,12 +10,72 @@ import BackButton from '../components/BackButton';
 export default function UserDetail() {
   const router = useRouter();
   const { userId } = useLocalSearchParams();
-  const { users, updateUser, deleteUser } = useAdminStore();
+  const { fetchUserById, deactivateUser, activateUser, deleteUser: deleteUserFromStore } = useAdminStore();
 
-  const user = users.find(u => u.id === userId);
-
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [showDeactivateModal, setShowDeactivateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  useEffect(() => {
+    loadUser();
+  }, [userId]);
+
+  const loadUser = async () => {
+    try {
+      setLoading(true);
+      const userData = await fetchUserById(userId);
+      setUser(userData);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to load user details');
+      router.back();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditPress = () => {
+    router.push({ pathname: '/edit-user', params: { userId: user._id } });
+  };
+
+  const handleDeactivateConfirm = async () => {
+    try {
+      await deactivateUser(user._id);
+      await loadUser();
+      setShowDeactivateModal(false);
+    } catch (error) {
+      Alert.alert('Error', error.response?.data?.message || 'Failed to deactivate user');
+    }
+  };
+
+  const handleActivateConfirm = async () => {
+    try {
+      await activateUser(user._id);
+      await loadUser();
+    } catch (error) {
+      Alert.alert('Error', error.response?.data?.message || 'Failed to activate user');
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteUserFromStore(user._id);
+      router.back();
+    } catch (error) {
+      Alert.alert('Error', error.response?.data?.message || 'Failed to delete user');
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#f59e0b" />
+        <Text style={{ marginTop: 10, fontFamily: 'Poppins_400Regular', color: '#78350f' }}>
+          Loading user details...
+        </Text>
+      </View>
+    );
+  }
 
   if (!user) {
     return (
@@ -24,25 +84,6 @@ export default function UserDetail() {
       </View>
     );
   }
-
-  const handleEditPress = () => {
-    router.push({ pathname: '/edit-user', params: { userId: user.id } });
-  };
-
-  const handleDeactivateConfirm = () => {
-    updateUser(user.id, { status: 'deactivated' });
-    setShowDeactivateModal(false);
-  };
-
-  const handleActivate = () => {
-    updateUser(user.id, { status: 'active' });
-  };
-
-  const handleDeleteConfirm = () => {
-    deleteUser(user.id);
-    setShowDeleteModal(false);
-    router.back();
-  };
 
   const isDeactivated = user.status !== 'active';
 
@@ -69,15 +110,33 @@ export default function UserDetail() {
         <View style={styles.detailsGrid}>
           <View style={[styles.detailBox, isDeactivated && styles.deactivatedDetailBox]}>
             <Text style={[styles.detailLabel, isDeactivated && styles.deactivatedText]}>Student ID</Text>
-            <Text style={[styles.detailValue, isDeactivated && styles.deactivatedText]}>{user.studentId}</Text>
+            <Text style={[styles.detailValue, isDeactivated && styles.deactivatedText]}>
+              {user.studentId || 'N/A'}
+            </Text>
           </View>
           <View style={[styles.detailBox, isDeactivated && styles.deactivatedDetailBox]}>
             <Text style={[styles.detailLabel, isDeactivated && styles.deactivatedText]}>Joined Date</Text>
-            <Text style={[styles.detailValue, isDeactivated && styles.deactivatedText]}>{user.joinedDate}</Text>
+            <Text style={[styles.detailValue, isDeactivated && styles.deactivatedText]}>
+              {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+            </Text>
           </View>
           <View style={[styles.detailBox, isDeactivated && styles.deactivatedDetailBox]}>
             <Text style={[styles.detailLabel, isDeactivated && styles.deactivatedText]}>Last Active</Text>
-            <Text style={[styles.detailValue, isDeactivated && styles.deactivatedText]}>{user.lastActive}</Text>
+            <Text style={[styles.detailValue, isDeactivated && styles.deactivatedText]}>
+              {user.lastActive ? (() => {
+                const now = new Date();
+                const past = new Date(user.lastActive);
+                const diffMs = now - past;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+                const diffDays = Math.floor(diffMs / 86400000);
+                if (diffMins < 1) return 'Just now';
+                if (diffMins < 60) return `${diffMins}m ago`;
+                if (diffHours < 24) return `${diffHours}h ago`;
+                if (diffDays < 7) return `${diffDays}d ago`;
+                return past.toLocaleDateString();
+              })() : 'N/A'}
+            </Text>
           </View>
           <View style={[styles.detailBox, isDeactivated && styles.deactivatedDetailBox]}>
             <Text style={[styles.detailLabel, isDeactivated && styles.deactivatedText]}>Status</Text>
@@ -92,17 +151,17 @@ export default function UserDetail() {
       <View style={[styles.statsRow, isDeactivated && styles.deactivatedStatsRow]}>
         <View style={[styles.statBox, isDeactivated && styles.deactivatedDetailBox]}>
           <MaterialCommunityIcons name="file-document-edit-outline" size={30} color={isDeactivated ? '#6b7280' : '#FA9F40'} />
-          <Text style={[styles.statNumber, isDeactivated && styles.deactivatedText]}>{user.quizzesCreated}</Text>
+          <Text style={[styles.statNumber, isDeactivated && styles.deactivatedText]}>0</Text>
           <Text style={[styles.statLabel, isDeactivated && styles.deactivatedText]}>Quizzes</Text>
         </View>
         <View style={[styles.statBox, isDeactivated && styles.deactivatedDetailBox]}>
           <MaterialCommunityIcons name="cards-outline" size={27} color={isDeactivated ? '#6b7280' : '#FA9F40'} />
-          <Text style={[styles.statNumber, isDeactivated && styles.deactivatedText]}>{user.flashcardsCreated}</Text>
+          <Text style={[styles.statNumber, isDeactivated && styles.deactivatedText]}>0</Text>
           <Text style={[styles.statLabel, isDeactivated && styles.deactivatedText]}>Flashcards</Text>
         </View>
         <View style={[styles.statBox, isDeactivated && styles.deactivatedDetailBox]}>
           <MaterialCommunityIcons name="pencil-outline" size={30} color={isDeactivated ? '#6b7280' : '#FA9F40'} />
-          <Text style={[styles.statNumber, isDeactivated && styles.deactivatedText]}>{user.notesCreated}</Text>
+          <Text style={[styles.statNumber, isDeactivated && styles.deactivatedText]}>0</Text>
           <Text style={[styles.statLabel, isDeactivated && styles.deactivatedText]}>Notes</Text>
         </View>
       </View>
@@ -124,7 +183,7 @@ export default function UserDetail() {
             <Text style={styles.deactivateButtonText}>Deactivate User</Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity style={styles.activateButton} onPress={handleActivate}>
+          <TouchableOpacity style={styles.activateButton} onPress={handleActivateConfirm}>
             <Text style={styles.activateButtonText}>Activate User</Text>
           </TouchableOpacity>
         )}

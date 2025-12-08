@@ -45,6 +45,10 @@ function RootLayout() {
               screenOptions={{
                 headerShown: false,
                 animation: "fade",
+                animationDuration: 200,
+                contentStyle: {
+                  backgroundColor: "#FFFBF0",
+                },
               }}
             />
           </CalendarProvider>
