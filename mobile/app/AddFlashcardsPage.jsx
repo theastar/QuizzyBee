@@ -27,14 +27,14 @@ function AddFlashcardsPage() {
       }
     });
     setInputs([{ q: "", a: "" }]);
-    router.back();
+    router.push("/dashboard/flashcards");
   };
 
   return (
     <SafeAreaView style={styles.page}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <View style={styles.backButtonRow}>
-          <BackButton />
+          <BackButton fallbackRoute="/dashboard/flashcards" />
         </View>
         <Text style={styles.title}>Add Flashcards</Text>
         <ScrollView contentContainerStyle={styles.scrollContent}>

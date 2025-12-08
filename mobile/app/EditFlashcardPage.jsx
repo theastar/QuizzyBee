@@ -1,37 +1,52 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import BackButton from "../components/BackButton"; // adjust path as necessary
+import BackButton from "../components/BackButton";
+import { FlashcardsContext } from "../context/FlashcardsContext";
 
 function EditFlashcardPage() {
   const router = useRouter();
-  // Assuming route params: q (question), a (answer)
   const params = useLocalSearchParams();
-  // Or get card from context/global state
+  const { editCardInDeck } = useContext(FlashcardsContext);
+
   const [q, setQ] = useState(params.q ?? "");
   const [a, setA] = useState(params.a ?? "");
 
-  // Optionally: If editing existing card, fetch via context/store instead of params
+  const deckId = params.deckId;
+  const cardIndex = parseInt(params.cardIndex);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerRow}>
-        <BackButton onPress={() => router.back()} />
+        <BackButton fallbackRoute={`/flashcard-study?id=${deckId}`} />
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Edit Flashcard</Text>
         <Text style={styles.label}>Question</Text>
-        <TextInput style={styles.input} value={q} onChangeText={setQ} />
+        <TextInput
+          style={styles.input}
+          value={q}
+          onChangeText={setQ}
+          placeholder="Enter question..."
+          placeholderTextColor="#A25C30"
+        />
         <Text style={styles.label}>Answer</Text>
-        <TextInput style={styles.input} value={a} onChangeText={setA} />
+        <TextInput
+          style={styles.input}
+          value={a}
+          onChangeText={setA}
+          placeholder="Enter answer..."
+          placeholderTextColor="#A25C30"
+        />
         <TouchableOpacity
-          style={styles.doneBtn}
+          style={[styles.doneBtn, (!q.trim() || !a.trim()) && { opacity: 0.65 }]}
           onPress={() => {
-            // Implement updating card logic here!
-            // For example, call a context action
-            // cardContext.editCardInDeck(deckId, cardIndex, { question: q, answer: a });
-            router.back();
+            if (q.trim() && a.trim()) {
+              editCardInDeck(deckId, cardIndex, { question: q, answer: a });
+              router.push(`/flashcard-study?id=${deckId}`);
+            }
           }}
+          disabled={!q.trim() || !a.trim()}
         >
           <Text style={styles.doneBtnText}>Done</Text>
         </TouchableOpacity>

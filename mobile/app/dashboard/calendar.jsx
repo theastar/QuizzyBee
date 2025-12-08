@@ -19,6 +19,7 @@ function CalendarPage() {
     EVENT_TYPES,
     PRIORITIES,
     TYPE_COLORS,
+    PRIORITY_COLORS,
   } = useCalendar();
 
   const markDates = {};
@@ -108,11 +109,14 @@ function CalendarPage() {
                     </Text>
                     <View style={[
                       styles.priorityTag,
-                      { borderColor: "#FDC600", backgroundColor: "#FFF9D5" }
+                      {
+                        borderColor: PRIORITY_COLORS[item.priority],
+                        backgroundColor: "transparent"
+                      }
                     ]}>
                       <Text style={[
                         styles.priorityText,
-                        { color: "#E17203" }
+                        { color: PRIORITY_COLORS[item.priority] }
                       ]}>{item.priority}</Text>
                     </View>
                   </View>

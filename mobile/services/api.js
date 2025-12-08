@@ -79,4 +79,76 @@ export const authAPI = {
   },
 };
 
+export const calendarAPI = {
+  getEvents: async (userId) => {
+    const response = await api.get(`/calendar/events/${userId}`);
+    return response.data;
+  },
+
+  createEvent: async (userId, title, type, priority, date) => {
+    const response = await api.post('/calendar/events', {
+      userId,
+      title,
+      type,
+      priority,
+      date,
+    });
+    return response.data;
+  },
+
+  deleteEvent: async (eventId, userId) => {
+    const response = await api.delete(`/calendar/events/${eventId}`, {
+      data: { userId }
+    });
+    return response.data;
+  },
+};
+
+export const flashcardAPI = {
+  getDecks: async (userId) => {
+    const response = await api.get(`/flashcards/decks/${userId}`);
+    return response.data;
+  },
+
+  createDeck: async (userId, title) => {
+    const response = await api.post('/flashcards/decks', {
+      userId,
+      title,
+    });
+    return response.data;
+  },
+
+  deleteDeck: async (deckId, userId) => {
+    const response = await api.delete(`/flashcards/decks/${deckId}`, {
+      data: { userId }
+    });
+    return response.data;
+  },
+
+  addCard: async (deckId, userId, question, answer) => {
+    const response = await api.post(`/flashcards/decks/${deckId}/cards`, {
+      userId,
+      question,
+      answer,
+    });
+    return response.data;
+  },
+
+  updateCard: async (deckId, cardId, userId, question, answer) => {
+    const response = await api.put(`/flashcards/decks/${deckId}/cards/${cardId}`, {
+      userId,
+      question,
+      answer,
+    });
+    return response.data;
+  },
+
+  deleteCard: async (deckId, cardId, userId) => {
+    const response = await api.delete(`/flashcards/decks/${deckId}/cards/${cardId}`, {
+      data: { userId }
+    });
+    return response.data;
+  },
+};
+
 export default api;

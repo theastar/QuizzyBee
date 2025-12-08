@@ -23,7 +23,7 @@ function FlashcardStudy() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.page}>
         <View style={styles.backBtnArea}>
-          <BackButton />
+          <BackButton fallbackRoute="/dashboard/flashcards" />
         </View>
 
         <View style={{ flex: 1, paddingTop: 80 }}>

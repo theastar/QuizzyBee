@@ -10,16 +10,11 @@ const TYPE_COLORS = {
   Assignment: "#FBBF24",
   Study: "#FE9A00"
 };
-const PRIORITY_COLORS = {
-  "Focus First": "#FDC600",
-  "Do Soon": "#FE9A00",
-  "Can Wait": "#A25C30"
-};
 
 export default function AddEventPage() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { selectedDate, addEvent, EVENT_TYPES, PRIORITIES } = useCalendar();
+  const { selectedDate, addEvent, EVENT_TYPES, PRIORITIES, PRIORITY_COLORS } = useCalendar();
   const date = params.date || selectedDate;
 
   const [form, setForm] = useState({
@@ -35,14 +30,14 @@ export default function AddEventPage() {
   function saveChanges() {
     if (form.title) {
       addEvent({ ...form, date });
-      router.back();
+      router.push("/dashboard/calendar");
     }
   }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.backRow}>
-        <BackButton />
+        <BackButton fallbackRoute="/dashboard/calendar" />
       </View>
       <View style={styles.root}>
         <Text style={styles.title}>Add Event</Text>
@@ -131,7 +126,7 @@ export default function AddEventPage() {
         <View style={styles.actionsRow}>
           <TouchableOpacity
             style={styles.cancelBtn}
-            onPress={() => router.back()}
+            onPress={() => router.push("/dashboard/calendar")}
           >
             <Text style={styles.cancelText}>Cancel</Text>
           </TouchableOpacity>

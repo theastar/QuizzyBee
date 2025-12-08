@@ -16,7 +16,7 @@ function CreateDeckPage() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerRow}>
-        <BackButton onPress={() => router.back()} />
+        <BackButton fallbackRoute="/dashboard/flashcards" />
       </View>
       <View style={styles.innerContent}>
         <Text style={styles.title}>Create New Deck</Text>
@@ -34,7 +34,7 @@ function CreateDeckPage() {
             if (title.trim()) {
               addDeck(title);
               setTitle("");
-              router.back();
+              router.push("/dashboard/flashcards");
             }
           }}
           disabled={!title.trim()}
