@@ -85,6 +85,33 @@ export function CalendarProvider({ children }) {
     }
   };
 
+  // Update existing event
+  const updateEvent = async (eventId, updatedEvent) => {
+    if (!user?._id) {
+      console.log("No user logged in");
+      return;
+    }
+
+    try {
+      const response = await calendarAPI.updateEvent(
+        eventId,
+        user._id,
+        updatedEvent.title,
+        updatedEvent.type,
+        updatedEvent.priority,
+        updatedEvent.date
+      );
+
+      if (response.success) {
+        setEvents((prev) =>
+          prev.map((ev) => (ev.id === eventId ? response.event : ev))
+        );
+      }
+    } catch (error) {
+      console.log("Error updating event:", error);
+    }
+  };
+
   // Delete an event by id
   const deleteEvent = async (id) => {
     if (!user?._id) {
@@ -126,6 +153,7 @@ export function CalendarProvider({ children }) {
   const contextValue = {
     events,
     addEvent,
+    updateEvent,
     selectedDate,
     setSelectedDate,
     modalVisible,

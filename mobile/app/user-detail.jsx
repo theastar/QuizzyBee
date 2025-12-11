@@ -151,17 +151,23 @@ export default function UserDetail() {
       <View style={[styles.statsRow, isDeactivated && styles.deactivatedStatsRow]}>
         <View style={[styles.statBox, isDeactivated && styles.deactivatedDetailBox]}>
           <MaterialCommunityIcons name="file-document-edit-outline" size={30} color={isDeactivated ? '#6b7280' : '#FA9F40'} />
-          <Text style={[styles.statNumber, isDeactivated && styles.deactivatedText]}>0</Text>
+          <Text style={[styles.statNumber, isDeactivated && styles.deactivatedText]}>
+            {user.stats?.quizzes || 0}
+          </Text>
           <Text style={[styles.statLabel, isDeactivated && styles.deactivatedText]}>Quizzes</Text>
         </View>
         <View style={[styles.statBox, isDeactivated && styles.deactivatedDetailBox]}>
           <MaterialCommunityIcons name="cards-outline" size={27} color={isDeactivated ? '#6b7280' : '#FA9F40'} />
-          <Text style={[styles.statNumber, isDeactivated && styles.deactivatedText]}>0</Text>
+          <Text style={[styles.statNumber, isDeactivated && styles.deactivatedText]}>
+            {user.stats?.flashcards || 0}
+          </Text>
           <Text style={[styles.statLabel, isDeactivated && styles.deactivatedText]}>Flashcards</Text>
         </View>
         <View style={[styles.statBox, isDeactivated && styles.deactivatedDetailBox]}>
           <MaterialCommunityIcons name="pencil-outline" size={30} color={isDeactivated ? '#6b7280' : '#FA9F40'} />
-          <Text style={[styles.statNumber, isDeactivated && styles.deactivatedText]}>0</Text>
+          <Text style={[styles.statNumber, isDeactivated && styles.deactivatedText]}>
+            {user.stats?.notes || 0}
+          </Text>
           <Text style={[styles.statLabel, isDeactivated && styles.deactivatedText]}>Notes</Text>
         </View>
       </View>

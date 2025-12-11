@@ -1,5 +1,8 @@
 import express from "express";
 import User from "../models/User.js";
+import Quiz from "../models/Quiz.js";
+import Deck from "../models/Deck.js";
+import Note from "../models/Note.js";
 import { authenticate, isAdmin } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -15,15 +18,21 @@ router.get("/stats", async (req, res) => {
         const totalAdmins = await User.countDocuments({ role: 'admin' });
         const deactivatedUsers = await User.countDocuments({ status: 'deactivated' });
 
-        // For now, we'll return 0 for quizzes, flashcards, and notes
-        // You can add these models later
+        // Count actual quizzes, flashcards, and notes from database
+        const totalQuizzes = await Quiz.countDocuments();
+        const totalNotes = await Note.countDocuments();
+
+        // Count total flashcards across all decks
+        const decks = await Deck.find();
+        const totalFlashcards = decks.reduce((sum, deck) => sum + deck.cards.length, 0);
+
         const stats = {
             totalUsers,
             totalAdmins,
             deactivatedUsers,
-            totalQuizzes: 0,
-            totalFlashcards: 0,
-            totalNotes: 0
+            totalQuizzes,
+            totalFlashcards,
+            totalNotes
         };
 
         res.status(200).json(stats);
@@ -94,7 +103,25 @@ router.get("/users/:id", async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        res.status(200).json({ user });
+        // Get user's content statistics
+        const quizzesCount = await Quiz.countDocuments({ userId: id });
+        const notesCount = await Note.countDocuments({ userId: id });
+
+        // Count user's flashcards across all their decks
+        const userDecks = await Deck.find({ userId: id });
+        const flashcardsCount = userDecks.reduce((sum, deck) => sum + deck.cards.length, 0);
+
+        // Add stats to user object
+        const userWithStats = {
+            ...user.toObject(),
+            stats: {
+                quizzes: quizzesCount,
+                flashcards: flashcardsCount,
+                notes: notesCount
+            }
+        };
+
+        res.status(200).json({ user: userWithStats });
     } catch (error) {
         console.log("Error fetching user:", error);
         res.status(500).json({

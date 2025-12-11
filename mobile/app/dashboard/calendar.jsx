@@ -120,13 +120,31 @@ function CalendarPage() {
                       ]}>{item.priority}</Text>
                     </View>
                   </View>
-                  <TouchableOpacity
-                    onPress={() => handleDeletePress(item.id)}
-                    style={styles.deleteButton}
-                    hitSlop={8}
-                  >
-                    <Ionicons name="trash" size={18} color="#E17203" />
-                  </TouchableOpacity>
+                  <View style={styles.eventActions}>
+                    <TouchableOpacity
+                      onPress={() => router.push({
+                        pathname: '/EditEventPage',
+                        params: {
+                          id: item.id,
+                          title: item.title,
+                          type: item.type,
+                          priority: item.priority,
+                          date: item.date
+                        }
+                      })}
+                      style={styles.editButton}
+                      hitSlop={8}
+                    >
+                      <Ionicons name="pencil" size={18} color="#4CAF50" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => handleDeletePress(item.id)}
+                      style={styles.deleteButton}
+                      hitSlop={8}
+                    >
+                      <Ionicons name="trash" size={18} color="#E17203" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             ))}
@@ -316,10 +334,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "Poppins_600SemiBold",
   },
+  eventActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  editButton: {
+    alignSelf: "flex-start",
+  },
   deleteButton: {
     alignSelf: "flex-start",
-    marginLeft: 12,
-    marginTop: 2
   },
   noEventsText: {
     color: "#99742c",

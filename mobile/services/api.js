@@ -110,6 +110,17 @@ export const calendarAPI = {
     return response.data;
   },
 
+  updateEvent: async (eventId, userId, title, type, priority, date) => {
+    const response = await api.put(`/calendar/events/${eventId}`, {
+      userId,
+      title,
+      type,
+      priority,
+      date,
+    });
+    return response.data;
+  },
+
   deleteEvent: async (eventId, userId) => {
     const response = await api.delete(`/calendar/events/${eventId}`, {
       data: { userId }

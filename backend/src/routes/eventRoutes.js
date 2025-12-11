@@ -97,6 +97,78 @@ router.post("/events", async (req, res) => {
     }
 });
 
+// Update an event
+router.put("/events/:eventId", async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        const { userId, title, type, priority, date } = req.body;
+
+        console.log("Updating event:", eventId, "for user:", userId);
+
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required"
+            });
+        }
+
+        const event = await Event.findOne({ _id: eventId, userId });
+
+        if (!event) {
+            return res.status(404).json({
+                success: false,
+                message: "Event not found"
+            });
+        }
+
+        // Validate type if provided
+        if (type && !['Quiz/Test', 'Assignment', 'Study'].includes(type)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid event type"
+            });
+        }
+
+        // Validate priority if provided
+        if (priority && !['Focus First', 'Do Soon', 'Can Wait'].includes(priority)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid priority"
+            });
+        }
+
+        // Update fields
+        if (title !== undefined) event.title = title.trim();
+        if (type !== undefined) event.type = type;
+        if (priority !== undefined) event.priority = priority;
+        if (date !== undefined) event.date = date;
+
+        await event.save();
+
+        console.log("Event updated successfully:", eventId);
+
+        res.status(200).json({
+            success: true,
+            message: "Event updated successfully",
+            event: {
+                id: event._id.toString(),
+                title: event.title,
+                type: event.type,
+                priority: event.priority,
+                date: event.date
+            }
+        });
+
+    } catch (error) {
+        console.log("Error updating event:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        });
+    }
+});
+
 // Delete an event
 router.delete("/events/:eventId", async (req, res) => {
     try {
