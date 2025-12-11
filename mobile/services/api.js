@@ -77,6 +77,20 @@ export const authAPI = {
     });
     return response.data;
   },
+
+  getSettings: async (userId) => {
+    const response = await api.get(`/auth/settings/${userId}`);
+    return response.data;
+  },
+
+  updateSettings: async (userId, pomodoroSetting, notificationsEnabled) => {
+    const response = await api.put('/auth/settings', {
+      userId,
+      pomodoroSetting,
+      notificationsEnabled,
+    });
+    return response.data;
+  },
 };
 
 export const calendarAPI = {

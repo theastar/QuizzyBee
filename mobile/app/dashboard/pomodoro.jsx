@@ -4,9 +4,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import BackButton from "../../components/BackButton";
 import { useSettingsStore } from "../../context/SettingsStore";
+import { useAuthStore } from "../../context/AuthStore";
 
 function Pomodoro() {
   const router = useRouter();
+  const { user } = useAuthStore();
   const { studyMinutes, breakMinutes, loadSettings } = useSettingsStore();
 
   const [mode, setMode] = useState("study");
@@ -14,10 +16,12 @@ function Pomodoro() {
   const [isRunning, setIsRunning] = useState(false);
   const timerRef = useRef(null);
 
-  // Load settings when component mounts
+  // Load settings from backend when component mounts
   useEffect(() => {
-    loadSettings();
-  }, []);
+    if (user?._id) {
+      loadSettings(user._id);
+    }
+  }, [user]);
 
   // Update timer when settings change
   useEffect(() => {

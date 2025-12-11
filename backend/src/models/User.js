@@ -59,6 +59,17 @@ const userSchema = new mongoose.Schema({
     resetPasswordExpires: {
         type: Date,
         default: null
+    },
+    settings: {
+        pomodoroSetting: {
+            type: String,
+            enum: ['Short (15/5)', 'Medium (25/5)', 'Long (50/10)'],
+            default: 'Medium (25/5)'
+        },
+        notificationsEnabled: {
+            type: Boolean,
+            default: true
+        }
     }
 
 }, { timestamps: true });

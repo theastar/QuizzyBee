@@ -4,9 +4,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import BackButton from "../components/BackButton";
 import { useSettingsStore } from "../context/SettingsStore";
+import { useAuthStore } from "../context/AuthStore";
 
 function AppSettings() {
     const router = useRouter();
+    const { user } = useAuthStore();
     const {
         pomodoroSetting,
         setPomodoroSetting,
@@ -22,14 +24,20 @@ function AppSettings() {
     ];
     const [showDropdown, setShowDropdown] = useState(false);
 
-    // Load settings when component mounts
+    // Load settings from backend when component mounts
     useEffect(() => {
-        loadSettings();
-    }, []);
+        if (user?._id) {
+            loadSettings(user._id);
+        }
+    }, [user]);
 
     const handlePomodoroChange = (option) => {
-        setPomodoroSetting(option);
+        setPomodoroSetting(option, user?._id);
         setShowDropdown(false);
+    };
+
+    const handleNotificationToggle = (value) => {
+        setNotificationsEnabled(value, user?._id);
     };
 
     return (
@@ -49,7 +57,7 @@ function AppSettings() {
                     <Text style={styles.label}>Notifications</Text>
                     <Switch
                         value={notificationsEnabled}
-                        onValueChange={setNotificationsEnabled}
+                        onValueChange={handleNotificationToggle}
                         trackColor={{ false: "#E5E5E5", true: "#E17203" }}
                         thumbColor="#FFFBF0"
                         ios_backgroundColor="#E5E5E5"

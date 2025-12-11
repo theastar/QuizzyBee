@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { authAPI } from '../services/api';
 
 // Parse pomodoro setting to get minutes
 const parsePomodoroSetting = (setting) => {
@@ -23,24 +24,74 @@ export const useSettingsStore = create((set, get) => ({
     // Notification settings
     notificationsEnabled: true,
 
-    // Load settings (placeholder for future AsyncStorage implementation)
-    loadSettings: () => {
-        // Settings are already in state, no need to load from storage for now
-        console.log('Settings loaded');
+    // Loading state
+    isLoading: false,
+
+    // Load settings from backend
+    loadSettings: async (userId) => {
+        if (!userId) {
+            console.log('No userId provided, using defaults');
+            return;
+        }
+
+        try {
+            set({ isLoading: true });
+            const response = await authAPI.getSettings(userId);
+
+            if (response.success && response.settings) {
+                const { pomodoroSetting, notificationsEnabled } = response.settings;
+                const times = parsePomodoroSetting(pomodoroSetting);
+
+                set({
+                    pomodoroSetting,
+                    studyMinutes: times.study,
+                    breakMinutes: times.break,
+                    notificationsEnabled,
+                    isLoading: false,
+                });
+
+                console.log('Settings loaded from backend:', response.settings);
+            }
+        } catch (error) {
+            console.error('Failed to load settings:', error);
+            set({ isLoading: false });
+        }
     },
 
-    // Update pomodoro setting
-    setPomodoroSetting: (setting) => {
+    // Update pomodoro setting and save to backend
+    setPomodoroSetting: async (setting, userId) => {
         const times = parsePomodoroSetting(setting);
         set({
             pomodoroSetting: setting,
             studyMinutes: times.study,
             breakMinutes: times.break,
         });
+
+        // Save to backend if userId is provided
+        if (userId) {
+            try {
+                const { notificationsEnabled } = get();
+                await authAPI.updateSettings(userId, setting, notificationsEnabled);
+                console.log('Pomodoro setting saved to backend:', setting);
+            } catch (error) {
+                console.error('Failed to save pomodoro setting:', error);
+            }
+        }
     },
 
-    // Update notification setting
-    setNotificationsEnabled: (enabled) => {
+    // Update notification setting and save to backend
+    setNotificationsEnabled: async (enabled, userId) => {
         set({ notificationsEnabled: enabled });
+
+        // Save to backend if userId is provided
+        if (userId) {
+            try {
+                const { pomodoroSetting } = get();
+                await authAPI.updateSettings(userId, pomodoroSetting, enabled);
+                console.log('Notification setting saved to backend:', enabled);
+            } catch (error) {
+                console.error('Failed to save notification setting:', error);
+            }
+        }
     },
 }));

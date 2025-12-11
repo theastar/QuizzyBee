@@ -65,7 +65,11 @@ router.post("/register", async (req, res) => {
                 course: user.course,
                 year: user.year,
                 bio: user.bio,
-                profileImage: user.profileImage
+                profileImage: user.profileImage,
+                settings: user.settings || {
+                    pomodoroSetting: 'Medium (25/5)',
+                    notificationsEnabled: true
+                }
             },
         })
 
@@ -129,7 +133,11 @@ router.post("/login", async (req, res) => {
                 course: user.course,
                 year: user.year,
                 bio: user.bio,
-                profileImage: user.profileImage
+                profileImage: user.profileImage,
+                settings: user.settings || {
+                    pomodoroSetting: 'Medium (25/5)',
+                    notificationsEnabled: true
+                }
             },
         });
 
@@ -334,6 +342,101 @@ router.post("/reset-password", async (req, res) => {
 
     } catch (error) {
         console.log("Error in reset password route:", error);
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message
+        });
+    }
+});
+
+// Get User Settings
+router.get("/settings/:userId", async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        console.log("Fetching settings for user:", userId);
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Return settings with defaults if not set
+        const settings = {
+            pomodoroSetting: user.settings?.pomodoroSetting || 'Medium (25/5)',
+            notificationsEnabled: user.settings?.notificationsEnabled !== undefined
+                ? user.settings.notificationsEnabled
+                : true
+        };
+
+        res.status(200).json({
+            success: true,
+            settings
+        });
+
+    } catch (error) {
+        console.log("Error fetching settings:", error);
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message
+        });
+    }
+});
+
+// Update User Settings
+router.put("/settings", async (req, res) => {
+    try {
+        const { userId, pomodoroSetting, notificationsEnabled } = req.body;
+
+        console.log("Updating settings for user:", userId);
+
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Validate pomodoroSetting if provided
+        if (pomodoroSetting !== undefined) {
+            const validSettings = ['Short (15/5)', 'Medium (25/5)', 'Long (50/10)'];
+            if (!validSettings.includes(pomodoroSetting)) {
+                return res.status(400).json({
+                    message: "Invalid pomodoro setting. Must be 'Short (15/5)', 'Medium (25/5)', or 'Long (50/10)'"
+                });
+            }
+        }
+
+        // Initialize settings object if it doesn't exist
+        if (!user.settings) {
+            user.settings = {};
+        }
+
+        // Update settings
+        if (pomodoroSetting !== undefined) {
+            user.settings.pomodoroSetting = pomodoroSetting;
+        }
+        if (notificationsEnabled !== undefined) {
+            user.settings.notificationsEnabled = notificationsEnabled;
+        }
+
+        await user.save();
+
+        console.log("Settings updated successfully for:", userId);
+
+        res.status(200).json({
+            success: true,
+            message: "Settings updated successfully",
+            settings: {
+                pomodoroSetting: user.settings.pomodoroSetting,
+                notificationsEnabled: user.settings.notificationsEnabled
+            }
+        });
+
+    } catch (error) {
+        console.log("Error updating settings:", error);
         res.status(500).json({
             message: "Internal server error",
             error: error.message
