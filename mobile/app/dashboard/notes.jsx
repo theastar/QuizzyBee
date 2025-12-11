@@ -1,16 +1,39 @@
-import React, { useContext, useState } from "react";
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView, SafeAreaView } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import DeleteModal from "../../components/DeleteModal";
-import { NotesContext } from "../../context/NotesContext";
+import { useNotesStore } from "../../context/NotesContext";
+import { useAuthStore } from "../../context/AuthStore";
 import BackButton from "../../components/BackButton";
 
 function Notes() {
   const router = useRouter();
-  const { notes, deleteNote } = useContext(NotesContext);
+  const { notes, loading, fetchNotes, deleteNote } = useNotesStore();
+  const { user } = useAuthStore();
   const [query, setQuery] = useState("");
   const [deleteId, setDeleteId] = useState(null);
+
+  // Fetch notes when component mounts
+  useEffect(() => {
+    if (user?._id) {
+      fetchNotes(user._id).catch(err => {
+        console.error("Failed to fetch notes:", err);
+      });
+    }
+  }, [user]);
+
+  const handleDelete = async () => {
+    if (!deleteId || !user?._id) return;
+
+    try {
+      await deleteNote(deleteId, user._id);
+      setDeleteId(null);
+    } catch (error) {
+      console.error("Failed to delete note:", error);
+      // You might want to show an error alert here
+    }
+  };
 
   const filteredNotes = notes.filter(
     (n) =>
@@ -44,7 +67,11 @@ function Notes() {
         />
       </View>
       <ScrollView contentContainerStyle={{ paddingBottom: 35 }}>
-        {filteredNotes.length === 0 ? (
+        {loading ? (
+          <View style={{ marginTop: 200, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#FE9A00" />
+          </View>
+        ) : filteredNotes.length === 0 ? (
           <Text
             style={{
               color: "#99742c",
@@ -94,10 +121,7 @@ function Notes() {
       </ScrollView>
       <DeleteModal
         visible={!!deleteId}
-        onConfirm={() => {
-          deleteNote(deleteId);
-          setDeleteId(null);
-        }}
+        onConfirm={handleDelete}
         onCancel={() => setDeleteId(null)}
       />
     </SafeAreaView>

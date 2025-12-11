@@ -1,40 +1,47 @@
-import React, { useState, useContext } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Alert, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
-import { NotesContext } from "../context/NotesContext";
-import BackButton from "../components/BackButton"; 
+import { useNotesStore } from "../context/NotesContext";
+import { useAuthStore } from "../context/AuthStore";
+import BackButton from "../components/BackButton";
 
 function NewNote() {
   const router = useRouter();
-  const { addNote } = useContext(NotesContext);
+  const { createNote, loading } = useNotesStore();
+  const { user } = useAuthStore();
 
   const [title, setTitle] = useState("");
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
 
-  function handleSave() {
-    if (!title || !subject || !content) return;
-    addNote({
-      id: Math.random().toString(36).slice(2, 10),
-      title,
-      subject,
-      content,
-    });
-    router.back();
+  async function handleSave() {
+    if (!title || !subject || !content) {
+      Alert.alert("Missing Fields", "Please fill in all fields");
+      return;
+    }
+
+    if (!user?._id) {
+      Alert.alert("Error", "User not authenticated");
+      return;
+    }
+
+    try {
+      await createNote(user._id, title, content, subject);
+      router.back();
+    } catch (error) {
+      Alert.alert("Error", "Failed to create note. Please try again.");
+    }
   }
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.page} 
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      {/* Back button row */}
+    <SafeAreaView style={styles.safeArea}>
+      {/* Back button row - fixed at top */}
       <View style={styles.backBtnArea}>
         <BackButton />
       </View>
 
       {/* Scrollable Content */}
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
@@ -66,32 +73,40 @@ function NewNote() {
           onChangeText={setContent}
           textAlignVertical="top"
         />
-        <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-          <Text style={styles.saveBtnText}>Save</Text>
+        <TouchableOpacity
+          style={[styles.saveBtn, loading && styles.saveBtnDisabled]}
+          onPress={handleSave}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.saveBtnText}>Save</Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 export default NewNote;
 
 const styles = StyleSheet.create({
-  page: { 
-    flex: 1, 
-    backgroundColor: "#FFFBF0", 
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#FFFBF0",
   },
   backBtnArea: {
-    position: "absolute",
-    top: 29,
-    left: 20,
-    zIndex: 10,
+    paddingLeft: 20,
+    paddingTop: 1,
+    paddingBottom: 10,
+    marginTop: -20,
   },
   scrollView: {
     flex: 1,
   },
   contentContainer: {
-    paddingTop: 80,
+    paddingTop: 5,
     paddingHorizontal: 18,
     paddingBottom: 40,
   },
@@ -127,5 +142,8 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_600SemiBold",
     color: "#fff",
     fontSize: 17,
+  },
+  saveBtnDisabled: {
+    opacity: 0.6,
   },
 });

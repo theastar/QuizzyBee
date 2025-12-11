@@ -1,5 +1,4 @@
 import { Stack } from "expo-router";
-import { NotesProvider } from "../context/NotesContext";
 import { FlashcardsProvider } from "../context/FlashcardsContext";
 import { CalendarProvider } from "../context/CalendarContext";
 import { QuizProvider } from "../context/QuizContext";
@@ -39,24 +38,22 @@ function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <NotesProvider>
-        <FlashcardsProvider>
-          <CalendarProvider>
-            <QuizProvider>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  animation: "fade",
-                  animationDuration: 200,
-                  contentStyle: {
-                    backgroundColor: "#FFFBF0",
-                  },
-                }}
-              />
-            </QuizProvider>
-          </CalendarProvider>
-        </FlashcardsProvider>
-      </NotesProvider>
+      <FlashcardsProvider>
+        <CalendarProvider>
+          <QuizProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                animation: "fade",
+                animationDuration: 200,
+                contentStyle: {
+                  backgroundColor: "#FFFBF0",
+                },
+              }}
+            />
+          </QuizProvider>
+        </CalendarProvider>
+      </FlashcardsProvider>
     </SafeAreaProvider>
   );
 }

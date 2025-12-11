@@ -7,6 +7,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import flashcardRoutes from "./routes/flashcardRoutes.js";
 import quizRoutes from "./routes/quizRoutes.js";
+import noteRoutes from "./routes/noteRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/calendar", eventRoutes);
 app.use("/api/flashcards", flashcardRoutes);
 app.use("/api/quizzes", quizRoutes);
+app.use("/api/notes", noteRoutes);
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on http://0.0.0.0:${PORT}`);

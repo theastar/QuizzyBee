@@ -171,18 +171,60 @@ export const quizAPI = {
     return response.data;
   },
 
-  updateQuiz: async (quizId, userId, title, questions, completed) => {
+  updateQuiz: async (quizId, userId, title, questions, completed, score, correct, wrong) => {
     const response = await api.put(`/quizzes/quizzes/${quizId}`, {
       userId,
       title,
       questions,
       completed,
+      score,
+      correct,
+      wrong,
     });
+    return response.data;
+  },
+
+  getRecentQuizzes: async (userId, limit = 4) => {
+    const response = await api.get(`/quizzes/quizzes/${userId}/recent?limit=${limit}`);
     return response.data;
   },
 
   deleteQuiz: async (quizId, userId) => {
     const response = await api.delete(`/quizzes/quizzes/${quizId}`, {
+      data: { userId }
+    });
+    return response.data;
+  },
+};
+
+export const noteAPI = {
+  getNotes: async (userId) => {
+    const response = await api.get(`/notes/notes/${userId}`);
+    return response.data;
+  },
+
+  createNote: async (userId, title, content, subject) => {
+    const response = await api.post('/notes/notes', {
+      userId,
+      title,
+      content,
+      subject,
+    });
+    return response.data;
+  },
+
+  updateNote: async (noteId, userId, title, content, subject) => {
+    const response = await api.put(`/notes/notes/${noteId}`, {
+      userId,
+      title,
+      content,
+      subject,
+    });
+    return response.data;
+  },
+
+  deleteNote: async (noteId, userId) => {
+    const response = await api.delete(`/notes/notes/${noteId}`, {
       data: { userId }
     });
     return response.data;

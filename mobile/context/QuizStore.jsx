@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { quizAPI } from '../services/api';
 
 // Helper function to format relative time
 const getRelativeTime = (date) => {
@@ -20,35 +21,45 @@ const getRelativeTime = (date) => {
 
 export const useQuizStore = create((set, get) => ({
     quizHistory: [],
+    loading: false,
+    error: null,
 
-    // Add a completed quiz to history
-    addQuizToHistory: (quizData) => {
-        const newQuiz = {
-            id: Date.now().toString(),
-            title: quizData.title,
-            score: quizData.score,
-            correct: quizData.correct,
-            wrong: quizData.wrong,
-            total: quizData.total,
-            completedAt: new Date().toISOString(),
-        };
+    // Fetch recent quizzes from backend
+    fetchRecentQuizzes: async (userId, limit = 4) => {
+        try {
+            set({ loading: true, error: null });
+            const quizzes = await quizAPI.getRecentQuizzes(userId, limit);
 
-        set((state) => ({
-            quizHistory: [newQuiz, ...state.quizHistory].slice(0, 10) // Keep only last 10 quizzes
-        }));
+            // Format quizzes with relative time
+            const formattedQuizzes = quizzes.map(quiz => ({
+                id: quiz._id,
+                title: quiz.title,
+                score: quiz.score,
+                correct: quiz.correct,
+                wrong: quiz.wrong,
+                total: quiz.correct + quiz.wrong,
+                completedAt: quiz.completedAt,
+                date: getRelativeTime(quiz.completedAt)
+            }));
+
+            set({ quizHistory: formattedQuizzes, loading: false });
+            return formattedQuizzes;
+        } catch (error) {
+            console.error('Error fetching recent quizzes:', error);
+            set({
+                error: error.response?.data?.message || 'Failed to fetch recent quizzes',
+                loading: false
+            });
+            return [];
+        }
     },
 
-    // Get recent quizzes with formatted dates
-    getRecentQuizzes: (limit = 3) => {
+    // Get recent quizzes with formatted dates (for compatibility)
+    getRecentQuizzes: (limit = 4) => {
         const history = get().quizHistory;
-        return history.slice(0, limit).map(quiz => ({
-            ...quiz,
-            date: getRelativeTime(quiz.completedAt)
-        }));
+        return history.slice(0, limit);
     },
 
-    // Clear all quiz history
-    clearHistory: () => {
-        set({ quizHistory: [] });
-    },
+    // Clear error
+    clearError: () => set({ error: null }),
 }));

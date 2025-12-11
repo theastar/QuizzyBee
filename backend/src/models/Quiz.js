@@ -37,6 +37,22 @@ const quizSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    completedAt: {
+        type: Date,
+    },
+    score: {
+        type: Number,
+        min: 0,
+        max: 100,
+    },
+    correct: {
+        type: Number,
+        min: 0,
+    },
+    wrong: {
+        type: Number,
+        min: 0,
+    },
 }, {
     timestamps: true,
 });

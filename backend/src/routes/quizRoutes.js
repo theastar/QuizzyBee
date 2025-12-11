@@ -67,7 +67,7 @@ router.post('/quizzes', async (req, res) => {
 router.put('/quizzes/:quizId', async (req, res) => {
     try {
         const { quizId } = req.params;
-        const { userId, title, questions, completed } = req.body;
+        const { userId, title, questions, completed, score, correct, wrong } = req.body;
 
         const quiz = await Quiz.findById(quizId);
 
@@ -91,7 +91,16 @@ router.put('/quizzes/:quizId', async (req, res) => {
             }
             quiz.questions = questions;
         }
-        if (completed !== undefined) quiz.completed = completed;
+        if (completed !== undefined) {
+            quiz.completed = completed;
+            // If marking as completed, save completion data
+            if (completed && !quiz.completedAt) {
+                quiz.completedAt = new Date();
+                if (score !== undefined) quiz.score = score;
+                if (correct !== undefined) quiz.correct = correct;
+                if (wrong !== undefined) quiz.wrong = wrong;
+            }
+        }
 
         await quiz.save();
         res.json(quiz);
@@ -123,6 +132,28 @@ router.delete('/quizzes/:quizId', async (req, res) => {
     } catch (error) {
         console.error('Error deleting quiz:', error);
         res.status(500).json({ message: 'Error deleting quiz', error: error.message });
+    }
+});
+
+// Get recent completed quizzes for a user
+router.get('/quizzes/:userId/recent', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const limit = parseInt(req.query.limit) || 4;
+
+        const recentQuizzes = await Quiz.find({
+            userId,
+            completed: true,
+            completedAt: { $exists: true }
+        })
+            .sort({ completedAt: -1 })
+            .limit(limit)
+            .select('title score correct wrong completedAt');
+
+        res.json(recentQuizzes);
+    } catch (error) {
+        console.error('Error fetching recent quizzes:', error);
+        res.status(500).json({ message: 'Error fetching recent quizzes', error: error.message });
     }
 });
 

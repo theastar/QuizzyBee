@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialIcons, Ionicons, FontAwesome5 } from "@expo/vector-icons";
@@ -33,7 +33,7 @@ const menuData = [
 function Home() {
   const router = useRouter();
   const { user } = useAuthStore();
-  const { getRecentQuizzes } = useQuizStore();
+  const { fetchRecentQuizzes, getRecentQuizzes } = useQuizStore();
 
   // Extract first name from full name
   const getFirstName = () => {
@@ -41,8 +41,17 @@ function Home() {
     return user.name.split(" ")[0];
   };
 
+  // Fetch recent quiz activities from backend
+  useEffect(() => {
+    if (user?._id) {
+      fetchRecentQuizzes(user._id, 4).catch(err => {
+        console.error("Failed to fetch recent quizzes:", err);
+      });
+    }
+  }, [user]);
+
   // Get recent quiz activities
-  const recentQuizzes = getRecentQuizzes(3);
+  const recentQuizzes = getRecentQuizzes(4);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -226,7 +235,7 @@ const styles = StyleSheet.create({
   },
   quizItemDate: {
     color: "#A25C30",
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: "Poppins_500Medium",
     marginTop: -5,
   },
