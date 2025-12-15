@@ -56,7 +56,7 @@ const QuizzyBee = () => {
       <View style={styles.addRow}>
         <TouchableOpacity
           style={styles.createButton}
-          onPress={() => router.push('/CreateQuizPage')}
+          onPress={() => router.push('/create-quiz')}
         >
           <Ionicons name="add-circle-outline" size={24} color="#fff" />
           <Text style={styles.createButtonText}>Create Quiz</Text>

@@ -43,11 +43,11 @@ export function QuizProvider({ children }) {
         }
     };
 
-    const updateQuiz = async (quizId, title, questions, completed) => {
+    const updateQuiz = async (quizId, title, questions, completed, score, correct, wrong) => {
         if (!user?._id) return;
 
         try {
-            const updatedQuiz = await quizAPI.updateQuiz(quizId, user._id, title, questions, completed);
+            const updatedQuiz = await quizAPI.updateQuiz(quizId, user._id, title, questions, completed, score, correct, wrong);
             setQuizzes(quizzes.map(q => q._id === quizId ? updatedQuiz : q));
             return updatedQuiz;
         } catch (error) {

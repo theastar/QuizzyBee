@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Pressable, Image, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
-import BackButton from "../components/BackButton";
+import BackButton from "../../components/BackButton";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuthStore } from "../context/AuthStore";
+import { useAuthStore } from "../../context/AuthStore";
 
 function SignUp() {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -60,7 +60,7 @@ function SignUp() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Image source={require("../assets/images/bee_icon.png")} style={styles.beeLogo} />
+        <Image source={require("../../assets/images/bee_icon.png")} style={styles.beeLogo} />
 
         <Text style={styles.title}>Create Account</Text>
         <Text style={styles.subtitle}>Sign up to start studying</Text>

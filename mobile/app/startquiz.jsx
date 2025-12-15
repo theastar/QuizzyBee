@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import BackButton from '../components/BackButton';
+import { QuizContext } from '../context/QuizContext';
 
 const StartQuiz = () => {
   const params = useLocalSearchParams();
@@ -24,14 +25,40 @@ const StartQuiz = () => {
     setSelectedAnswer(answerIndex);
   };
 
-  const handleComplete = (score, correct, wrong, total) => {
-    router.replace({
-      pathname: '/endquiz',
-      params: {
-        quiz: JSON.stringify(quiz),
-        summaryData: JSON.stringify({ correct, wrong, total, score }),
-      },
-    });
+  // Import context 
+  const { updateQuiz } = React.useContext(QuizContext);
+
+  const handleComplete = async (score, correct, wrong, total) => {
+    try {
+      // Save result to backend
+      await updateQuiz(
+        quiz._id,
+        quiz.title,
+        quiz.questions,
+        true, // completed
+        score,
+        correct,
+        wrong
+      );
+
+      router.replace({
+        pathname: '/endquiz',
+        params: {
+          quiz: JSON.stringify(quiz),
+          summaryData: JSON.stringify({ correct, wrong, total, score }),
+        },
+      });
+    } catch (error) {
+      console.error("Failed to save quiz result:", error);
+      // Optional: alert user, but still navigate so they see their score
+      router.replace({
+        pathname: '/endquiz',
+        params: {
+          quiz: JSON.stringify(quiz),
+          summaryData: JSON.stringify({ correct, wrong, total, score }),
+        },
+      });
+    }
   };
 
   const handleSubmit = () => {

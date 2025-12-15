@@ -36,7 +36,7 @@ function CalendarPage() {
 
   const router = useRouter();
   const handleAddEvent = () => {
-    router.push(`/AddEventPage?date=${selectedDate}`);
+    router.push(`/add-event?date=${selectedDate}`);
   };
 
   const handleDeletePress = (id) => openDeleteModal(id);
@@ -123,7 +123,7 @@ function CalendarPage() {
                   <View style={styles.eventActions}>
                     <TouchableOpacity
                       onPress={() => router.push({
-                        pathname: '/EditEventPage',
+                        pathname: '/edit-event',
                         params: {
                           id: item.id,
                           title: item.title,

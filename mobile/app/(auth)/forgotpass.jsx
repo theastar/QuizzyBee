@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { View, Text, TextInput, Pressable, Image, StyleSheet, Alert, ActivityIndicator, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import BackButton from "../components/BackButton";
-import { authAPI } from "../services/api";
-import ResetCodeModal from "../components/ResetCodeModal";
+import BackButton from "../../components/BackButton";
+import { authAPI } from "../../services/api";
+import ResetCodeModal from "../../components/ResetCodeModal";
 
 function ForgotPass() {
   const router = useRouter();
@@ -105,7 +105,7 @@ function ForgotPass() {
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          <Image source={require("../assets/images/bee_icon.png")} style={styles.beeLogo} />
+          <Image source={require("../../assets/images/bee_icon.png")} style={styles.beeLogo} />
 
           <Text style={styles.title}>Reset Password</Text>
           <Text style={styles.subtitleCenter}>
@@ -188,7 +188,7 @@ function ForgotPass() {
         <BackButton />
       </View>
 
-      <Image source={require("../assets/images/bee_icon.png")} style={styles.beeLogo} />
+      <Image source={require("../../assets/images/bee_icon.png")} style={styles.beeLogo} />
 
       <Text style={styles.title}>Forgot Password?</Text>
       <Text style={styles.subtitleCenter}>Enter your email to receive a reset code</Text>
@@ -227,7 +227,7 @@ function ForgotPass() {
         visible={showCodeModal}
         resetCode={displayResetCode}
         onContinue={handleModalContinue}
-        onClose={() => setShowCodeModal(false)} 
+        onClose={() => setShowCodeModal(false)}
       />
     </View>
   );

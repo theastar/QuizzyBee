@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Pressable, Image, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
-import BackButton from "../components/BackButton";
+import BackButton from "../../components/BackButton";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuthStore } from "../context/AuthStore";
+import { useAuthStore } from "../../context/AuthStore";
 
 function Login() {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -52,7 +52,7 @@ function Login() {
 
       {/* Bee Icon */}
       <Image
-        source={require("../assets/images/bee_icon.png")}
+        source={require("../../assets/images/bee_icon.png")}
         style={styles.beeLogo}
       />
 

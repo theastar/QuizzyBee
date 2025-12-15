@@ -99,7 +99,7 @@ function FlashcardStudy() {
                 style={styles.editBtn}
                 onPress={() =>
                   router.push({
-                    pathname: "/EditFlashcardPage",
+                    pathname: "/edit-flashcard",
                     params: {
                       deckId: deck.id,
                       cardIndex: index,

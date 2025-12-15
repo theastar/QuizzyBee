@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialIcons, Ionicons, FontAwesome5 } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { useAuthStore } from "../../context/AuthStore";
 import { useQuizStore } from "../../context/QuizStore";
 
@@ -41,14 +41,16 @@ function Home() {
     return user.name.split(" ")[0];
   };
 
-  // Fetch recent quiz activities from backend
-  useEffect(() => {
-    if (user?._id) {
-      fetchRecentQuizzes(user._id, 4).catch(err => {
-        console.error("Failed to fetch recent quizzes:", err);
-      });
-    }
-  }, [user]);
+  // Fetch recent quiz activities whenever the screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user?._id) {
+        fetchRecentQuizzes(user._id, 4).catch(err => {
+          console.error("Failed to fetch recent quizzes:", err);
+        });
+      }
+    }, [user])
+  );
 
   // Get recent quiz activities
   const recentQuizzes = getRecentQuizzes(4);
